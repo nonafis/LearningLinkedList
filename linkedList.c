@@ -41,6 +41,24 @@ void append(Node **headadd, int d)
     }
 }
 
+void printNode(Node **headadd)
+{
+    Node *current = *headadd;
+    if (current == NULL)
+    {
+        printf("NULL\n");
+    }
+    else
+    {
+        while (current->next != NULL)
+        {
+            printf("%d->", current->data);
+            current = current->next;
+        }
+        printf("%d->NULL\n", current->data);
+    }
+}
+
 void freeList(Node **headadd)
 {
     Node *current = *headadd;
@@ -51,6 +69,7 @@ void freeList(Node **headadd)
         free(current);
         current = next;
     }
+    *headadd = NULL;
 }
 
 int main()
@@ -62,7 +81,9 @@ int main()
     append(&head, 30);
     append(&head, 40);
     append(&head, 50);
-    
+
+    printNode(&head);
+
     freeList(&head);
     return 0;
 }
