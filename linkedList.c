@@ -7,21 +7,21 @@ typedef struct node
     struct node *next;
 } Node;
 
-Node *createNode(int d) //to avoid code duplication
+Node *createNode(int d)
 {
-    Node *newNode = malloc(sizeof(Node)); //allocation
-    if (newNode == NULL) //checks if allocation so that null pointer does not get dereferenced later on
+    Node *newNode = malloc(sizeof(Node));
+    if (newNode == NULL)
     {
         printf("Node creation failed. Memory Allocation Unsuccessful.\n");
         exit(1);
     }
-    else //initializes the Node
+    else
     {
-        newNode->data = d; 
+        newNode->data = d;
         newNode->next = NULL;
         return newNode;
     }
-} //reusable function
+}
 
 void append(Node **headadd, int d)
 {
@@ -41,7 +41,7 @@ void append(Node **headadd, int d)
     }
 }
 
-void printNode(Node *head) 
+void printNode(Node *head)
 {
     Node *current = head;
     if (current == NULL)
@@ -59,18 +59,20 @@ void printNode(Node *head)
     }
 }
 
-void insertNode(Node **headadd, Node *N){
-    if (*headadd==NULL)
+void insertNode(Node **headadd, Node *N)
+{
+    if (*headadd == NULL)
     {
-        *headadd=N;
+        *headadd = N;
     }
-    else{
-        Node *current=*headadd;
-        while (current->next!=NULL)
+    else
+    {
+        Node *current = *headadd;
+        while (current->next != NULL)
         {
-            current=current->next;
+            current = current->next;
         }
-        current->next=N;
+        current->next = N;
     }
 }
 
@@ -80,16 +82,50 @@ void appendNode(Node **headadd, int d)
     insertNode(headadd, newNode);
 }
 
-void insertAtHead(Node **headadd, int d){
+void insertAtHead(Node **headadd, int d)
+{
     Node *newNode = createNode(d);
     insertNode(&newNode, *headadd);
-    *headadd=newNode;
+    *headadd = newNode;
 }
 
-void insert_at_head(Node **headadd, int d){
+void insert_at_head(Node **headadd, int d)
+{
     Node *newNode = createNode(d);
-    newNode->next=*headadd;
-    *headadd=newNode;
+    newNode->next = *headadd;
+    *headadd = newNode;
+}
+
+void insert_at_pos(Node **headadd, int d, int pos)
+{
+    Node *newNode = createNode(d);
+    if (*headadd == NULL)
+    {
+        *headadd = newNode;
+    }
+    else
+    {
+        Node *current = *headadd;
+        Node *nextToCurrent = *headadd;
+        if (pos == 0)
+        {
+            newNode->next = nextToCurrent;
+            *headadd = newNode;
+        }
+        else
+        {
+            for (int i = 0; (nextToCurrent != NULL) && (i < pos); i++)
+            {
+                nextToCurrent = nextToCurrent->next;
+                if (i != 0)
+                {
+                    current = current->next;
+                }
+            }
+            newNode->next = nextToCurrent;
+            current->next = newNode;
+        }
+    }
 }
 
 void freeList(Node **headadd)
@@ -115,13 +151,19 @@ int main()
     append(&head, 40);
     append(&head, 50);
     printNode(head);
-    
-    insert_at_head(&head, 65);
+
+    insert_at_pos(&head, 70, 3);
     printNode(head);
     
-    insert_at_head(&head, 70);
+    insert_at_pos(&head, 88, 7);
     printNode(head);
 
+    insert_at_pos(&head, 65, 0);
+    printNode(head);
+
+    insert_at_pos(&head, 43, 8);
+    printNode(head);
+    
     freeList(&head);
     return 0;
 }
