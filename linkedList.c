@@ -7,21 +7,21 @@ typedef struct node
     struct node *next;
 } Node;
 
-Node *createNode(int d) // to avoid code duplication
+Node *createNode(int d)
 {
-    Node *newNode = malloc(sizeof(Node)); // allocation
-    if (newNode == NULL)                  // checks if allocation so that null pointer does not get dereferenced later on
+    Node *newNode = malloc(sizeof(Node));
+    if (newNode == NULL)
     {
         printf("Node creation failed. Memory Allocation Unsuccessful.\n");
         exit(1);
     }
-    else // initializes the Node
+    else
     {
         newNode->data = d;
         newNode->next = NULL;
         return newNode;
     }
-} // reusable function
+}
 
 void printNode(Node *head)
 {
@@ -32,12 +32,12 @@ void printNode(Node *head)
     }
     else
     {
-        while (current->next != NULL) // traverse and prints but does not prints the last node since at last node current->next==NULL hence the loop wont execute to print the last node
+        while (current->next != NULL)
         {
             printf("%d->", current->data);
             current = current->next;
         }
-        printf("%d->NULL\n", current->data); // prints the last node
+        printf("%d->NULL\n", current->data);
     }
 }
 
@@ -124,6 +124,19 @@ void insert_after_key(Node **headadd, int d, int key)
     }
 }
 
+void delete_at_head(Node **headadd){
+    if (*headadd==NULL)
+    {
+        printf("List is empty. Nothing to delete.\n");
+    }
+    else
+    {
+        Node *deadnode = *headadd;
+        *headadd = (*headadd)->next;
+        free(deadnode);
+    }
+}
+
 void freeList(Node **headadd)
 {
     Node *current = *headadd;
@@ -178,6 +191,9 @@ int main()
     insert_after_key(&head, 23, 89);
     printNode(head);
 
+    delete_at_head(&head);
+    printNode(head);
+    
     freeList(&head);
     return 0;
 }
