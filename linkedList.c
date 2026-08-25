@@ -1,5 +1,5 @@
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct node
 {
@@ -7,16 +7,62 @@ typedef struct node
     struct node *next;
 } Node;
 
-Node* createNode(int d){
+Node *createNode(int d)
+{
     Node *newNode = malloc(sizeof(Node));
-    newNode->data = d;
-    newNode->next = NULL;
-    return newNode;
+    if (newNode == NULL)
+    {
+        printf("Node creation failed. Memory Allocation Unsuccessful.\n");
+        exit(1);
+    }
+    else
+    {
+        newNode->data = d;
+        newNode->next = NULL;
+        return newNode;
+    }
 }
 
-int main() {
-    Node *head = createNode(10);
-    Node *second = createNode(20);
-    Node *third = createNode(30);
+void append(Node **headadd, int d)
+{
+    Node *newNode = createNode(d);
+    if (*headadd == NULL)
+    {
+        *headadd = newNode;
+    }
+    else
+    {
+        Node *current = *headadd;
+        while (current->next != NULL)
+        {
+            current = current->next;
+        }
+        current->next = newNode;
+    }
+}
+
+void freeList(Node **headadd)
+{
+    Node *current = *headadd;
+    Node *next;
+    while (current != NULL)
+    {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
+int main()
+{
+    Node *head = NULL;
+
+    append(&head, 10);
+    append(&head, 20);
+    append(&head, 30);
+    append(&head, 40);
+    append(&head, 50);
+    
+    freeList(&head);
     return 0;
 }
