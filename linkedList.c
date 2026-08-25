@@ -128,6 +128,31 @@ void insert_at_pos(Node **headadd, int d, int pos)
     }
 }
 
+void insert_after_key(Node **headadd, int d, int key){
+    if (*headadd==NULL)
+    {
+        printf("Key not found!\n");
+    }
+    else
+    {
+        Node *current = *headadd;
+        while ((current->next!=NULL)&&((current->data)!=key))
+        {
+            current=current->next;
+        }
+        if ((current->next==NULL)&&(current->data!=key))
+        {
+            printf("Key not found!\n");
+        }
+        else
+        {
+            Node *newNode = createNode(d);
+            newNode->next = current->next;
+            current->next = newNode;
+        }
+    }
+}
+
 void freeList(Node **headadd)
 {
     Node *current = *headadd;
@@ -152,16 +177,16 @@ int main()
     append(&head, 50);
     printNode(head);
 
-    insert_at_pos(&head, 70, 3);
+    insert_after_key(&head, 37, 10);
     printNode(head);
     
-    insert_at_pos(&head, 88, 7);
+    insert_after_key(&head, 86, 37);
     printNode(head);
 
-    insert_at_pos(&head, 65, 0);
+    insert_after_key(&head, 45, 50);
     printNode(head);
 
-    insert_at_pos(&head, 43, 8);
+    insert_after_key(&head, 23, 89);
     printNode(head);
     
     freeList(&head);
