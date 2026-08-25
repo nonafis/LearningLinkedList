@@ -41,7 +41,7 @@ void printNode(Node *head)
     }
 }
 
-void spliceNode(Node **headadd, Node *N) //adds a pre created node to the end of a list
+void spliceNode(Node **headadd, Node *N)
 {
     if (N->next == NULL)
     {
@@ -124,8 +124,9 @@ void insert_after_key(Node **headadd, int d, int key)
     }
 }
 
-void delete_at_head(Node **headadd){
-    if (*headadd==NULL)
+void delete_at_head(Node **headadd)
+{
+    if (*headadd == NULL)
     {
         printf("List is empty. Nothing to delete.\n");
     }
@@ -134,6 +135,31 @@ void delete_at_head(Node **headadd){
         Node *deadnode = *headadd;
         *headadd = (*headadd)->next;
         free(deadnode);
+    }
+}
+
+void delete_at_tail(Node **headadd){
+    if (*headadd==NULL)
+    {
+        printf("List is Empty. Nothing to delete.\n");
+    }
+    else
+    {
+        if ((*headadd)->next==NULL)
+        {
+            free(*headadd);
+            *headadd = NULL;
+        }
+        else
+        {
+            Node *current = *headadd;
+            while (current->next->next!=NULL)
+            {
+                current = current->next;
+            }
+            free(current->next);
+            current->next=NULL;
+        }
     }
 }
 
@@ -193,7 +219,7 @@ int main()
 
     delete_at_head(&head);
     printNode(head);
-    
+
     freeList(&head);
     return 0;
 }
