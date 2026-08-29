@@ -80,7 +80,7 @@ void insert_at_head(Node **headadd, int d)
 
 void insert_at_pos(Node **headadd, int d, int pos)
 {
-    if (pos<0)
+    if (pos < 0)
     {
         printf("Invalid position! Position can't be negative.\n");
         return;
@@ -177,7 +177,7 @@ void delete_at_pos(Node **headadd, int pos)
     }
     else
     {
-        if (pos<0)
+        if (pos < 0)
         {
             printf("Invalid position! Position can't be negative.\n");
         }
@@ -189,7 +189,7 @@ void delete_at_pos(Node **headadd, int pos)
         {
             if ((*headadd)->next == NULL)
             {
-                printf("Invalid Position! Length of list is only 1 and last valid position is 0\n");
+                printf("Invalid Position! Length of the list is only 1 and last valid position is 0\n");
             }
             else
             {
@@ -201,13 +201,53 @@ void delete_at_pos(Node **headadd, int pos)
                 }
                 if ((current->next->next == NULL) && (i != pos))
                 {
-                    printf("Invalid Position! Length of list is only %d and last valid position is %d\n", i + 1, i);
+                    printf("Invalid Position! Length of the list is only %d and last valid position is %d\n", i + 1, i);
                 }
                 else
                 {
-                     Node *deadNode = current->next;
-                     current->next=current->next->next;
-                     free(deadNode);
+                    Node *deadNode = current->next;
+                    current->next = current->next->next;
+                    free(deadNode);
+                }
+            }
+        }
+    }
+}
+
+void delete_the_key(Node **headadd, int key)
+{
+    if (*headadd == NULL)
+    {
+        printf("List is empty. Nothing to delete.\n");
+    }
+    else
+    {
+        if ((*headadd)->data == key)
+        {
+            delete_at_head(headadd);
+        }
+        else
+        {
+            if ((*headadd)->next == NULL)
+            {
+                printf("Key not found!\n");
+            }
+            else
+            {
+                Node *current = *headadd;
+                while ((current->next->next != NULL) && (current->next->data != key))
+                {
+                    current = current->next;
+                }
+                if ((current->next->next == NULL) && (current->next->data != key))
+                {
+                    printf("Key not found!\n");
+                }
+                else
+                {
+                    Node *deadNode = current->next;
+                    current->next = current->next->next;
+                    free(deadNode);
                 }
             }
         }
@@ -269,6 +309,18 @@ int main()
     printNode(head);
 
     delete_at_head(&head);
+    printNode(head);
+
+    delete_at_tail(&head);
+    printNode(head);
+
+    delete_at_pos(&head, 10);
+    printNode(head);
+
+    delete_at_pos(&head, 11);
+    printNode(head);
+
+    delete_at_pos(&head, -46);
     printNode(head);
 
     freeList(&head);
