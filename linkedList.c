@@ -80,6 +80,11 @@ void insert_at_head(Node **headadd, int d)
 
 void insert_at_pos(Node **headadd, int d, int pos)
 {
+    if (pos<0)
+    {
+        printf("Invalid position! Position can't be negative.\n");
+        return;
+    }
     Node *newNode = createNode(d);
     if (*headadd == NULL || pos == 0)
     {
@@ -138,14 +143,15 @@ void delete_at_head(Node **headadd)
     }
 }
 
-void delete_at_tail(Node **headadd){
-    if (*headadd==NULL)
+void delete_at_tail(Node **headadd)
+{
+    if (*headadd == NULL)
     {
         printf("List is Empty. Nothing to delete.\n");
     }
     else
     {
-        if ((*headadd)->next==NULL)
+        if ((*headadd)->next == NULL) // if it is a single node
         {
             free(*headadd);
             *headadd = NULL;
@@ -153,12 +159,57 @@ void delete_at_tail(Node **headadd){
         else
         {
             Node *current = *headadd;
-            while (current->next->next!=NULL)
+            while (current->next->next != NULL)
             {
                 current = current->next;
             }
             free(current->next);
-            current->next=NULL;
+            current->next = NULL;
+        }
+    }
+}
+
+void delete_at_pos(Node **headadd, int pos)
+{
+    if (*headadd == NULL)
+    {
+        printf("List is empty. Nothing to delete.\n");
+    }
+    else
+    {
+        if (pos<0)
+        {
+            printf("Invalid position! Position can't be negative.\n");
+        }
+        else if (pos == 0)
+        {
+            delete_at_head(headadd);
+        }
+        else
+        {
+            if ((*headadd)->next == NULL)
+            {
+                printf("Invalid Position! Length of list is only 1 and last valid position is 0\n");
+            }
+            else
+            {
+                Node *current = *headadd;
+                int i;
+                for (i = 1; (current->next->next) != NULL && i < pos; i++)
+                {
+                    current = current->next;
+                }
+                if ((current->next->next == NULL) && (i != pos))
+                {
+                    printf("Invalid Position! Length of list is only %d and last valid position is %d\n", i + 1, i);
+                }
+                else
+                {
+                     Node *deadNode = current->next;
+                     current->next=current->next->next;
+                     free(deadNode);
+                }
+            }
         }
     }
 }
