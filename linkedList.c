@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 typedef struct node
 {
@@ -41,41 +42,119 @@ void printNode(Node *head)
     }
 }
 
-void spliceNode(Node **headadd, Node *N)
+void insertNode(Node **headadd, Node *precederNode, Node *newNode)
 {
-    if (N->next == NULL)
+    assert((precederNode == NULL) || ((*headadd) != NULL));
+    if (precederNode == NULL)
     {
-        if (*headadd == NULL)
-        {
-            *headadd = N;
-        }
-        else
-        {
-            Node *current = *headadd;
-            while (current->next != NULL)
-            {
-                current = current->next;
-            }
-            current->next = N;
-        }
+        newNode->next = *headadd;
+        *headadd = newNode;
     }
     else
     {
-        printf("Invalid argument! it is not a single node.\n");
+        newNode->next = precederNode->next;
+        precederNode->next = newNode;
+    }
+}
+
+Node *traverseToTail(Node *head)
+{
+    if (head == NULL)
+        return NULL;
+    Node *tail = head;
+    while (tail->next != NULL)
+    {
+        tail = tail->next;
+    }
+    return tail;
+}
+
+Node *traverseToPos(Node *head, int pos)
+{
+    if (head == NULL)
+        return NULL;
+    Node *current = head;
+    for (int i = 0; (((current->next) != NULL) && (i < pos)); i++)
+    {
+        current = current->next;
+    }
+    return current;
+}
+
+Node *traverseToKey(Node *head, int key)
+{
+    if (head == NULL)
+        return NULL;
+    Node *current = head;
+    while ((current->next != NULL) && ((current->data) != key))
+    {
+        current = current->next;
+    }
+    return current;
+}
+
+Node *traverseToPriorToTail(Node *head)
+{
+    if (head == NULL)
+        return NULL;
+    if (head->next == NULL)
+        return NULL;
+    Node *priorToTail = head;
+    while (priorToTail->next->next != NULL)
+    {
+        priorToTail = priorToTail->next;
+    }
+    return priorToTail;
+}
+
+Node *traverseToPriorToKey(Node *head, int key)
+{
+    if (head == NULL)
+        return NULL;
+    Node *current = head;
+    while ((current->next != NULL) && ((current->next->data) != key))
+    {
+        current = current->next;
+    }
+    return current;
+}
+
+int deleteNode(Node **headadd, Node *precNode)
+{
+    if (*headadd != NULL)
+    {
+        if (precNode == NULL)
+        {
+            Node *deadNode = *headadd;
+            *headadd = (*headadd)->next;
+            free(deadNode);
+        }
+        else
+        {
+            assert(precNode->next != NULL);
+            Node *deadNode = precNode->next;
+            precNode->next = precNode->next->next;
+            free(deadNode);
+        }
+        return 0;
+    }
+    else
+    {
+        return 1;
     }
 }
 
 void appendNode(Node **headadd, int d)
 {
     Node *newNode = createNode(d);
-    spliceNode(headadd, newNode);
+    Node *tail = traverseToTail(*headadd);
+    insertNode(headadd, tail, newNode);
 }
 
 void insert_at_head(Node **headadd, int d)
 {
     Node *newNode = createNode(d);
-    newNode->next = *headadd;
-    *headadd = newNode;
+    insertNode(headadd, NULL, newNode);
 }
 
 void insert_at_pos(Node **headadd, int d, int pos)
@@ -88,18 +167,12 @@ void insert_at_pos(Node **headadd, int d, int pos)
     Node *newNode = createNode(d);
     if (*headadd == NULL || pos == 0)
     {
-        newNode->next = *headadd;
-        *headadd = newNode;
+        insertNode(headadd, NULL, newNode); // if empty list then newNode becomes head and its next is previous *headadd which was NULL, if it not empty but pos is 0 then newNode becomes head and previous list gets attached to the next of newNode.
     }
     else
     {
-        Node *current = *headadd;
-        for (int i = 1; (current->next != NULL) && (i < pos); i++)
-        {
-            current = current->next;
-        }
-        newNode->next = current->next;
-        current->next = newNode;
+        Node *precederNode = traverseToPos(*headadd, pos - 1);
+        insertNode(headadd, precederNode, newNode);
     }
 }
 
@@ -107,150 +180,93 @@ void insert_after_key(Node **headadd, int d, int key)
 {
     if (*headadd == NULL)
     {
-        printf("Key not found!\n");
+        printf("Insertion using key cannot be done in an empty list.\n");
     }
     else
     {
-        Node *current = *headadd;
-        while ((current->next != NULL) && ((current->data) != key))
-        {
-            current = current->next;
-        }
-        if ((current->next == NULL) && (current->data != key))
+        Node *keyNode = traverseToKey(*headadd, key);
+        if ((keyNode->next == NULL) && (keyNode->data != key))
         {
             printf("Key not found!\n");
         }
         else
         {
             Node *newNode = createNode(d);
-            newNode->next = current->next;
-            current->next = newNode;
+            insertNode(headadd, keyNode, newNode);
         }
     }
 }
 
 void delete_at_head(Node **headadd)
 {
-    if (*headadd == NULL)
+    if (deleteNode(headadd, NULL))
     {
         printf("List is empty. Nothing to delete.\n");
-    }
-    else
-    {
-        Node *deadnode = *headadd;
-        *headadd = (*headadd)->next;
-        free(deadnode);
     }
 }
 
 void delete_at_tail(Node **headadd)
 {
-    if (*headadd == NULL)
+    Node *priorToTail = traverseToPriorToTail(*headadd);
+    if (priorToTail == NULL)
     {
-        printf("List is Empty. Nothing to delete.\n");
+
+        delete_at_head(headadd);
     }
     else
     {
-        if ((*headadd)->next == NULL) // if it is a single node
-        {
-            free(*headadd);
-            *headadd = NULL;
-        }
-        else
-        {
-            Node *current = *headadd;
-            while (current->next->next != NULL)
-            {
-                current = current->next;
-            }
-            free(current->next);
-            current->next = NULL;
-        }
+        deleteNode(headadd, priorToTail);
     }
 }
 
 void delete_at_pos(Node **headadd, int pos)
 {
-    if (*headadd == NULL)
+    if (pos < 0)
     {
-        printf("List is empty. Nothing to delete.\n");
+        printf("Invalid position! Position can't be negative.\n");
+        return;
     }
-    else
+    if (pos==0)
     {
-        if (pos < 0)
-        {
-            printf("Invalid position! Position can't be negative.\n");
-        }
-        else if (pos == 0)
-        {
-            delete_at_head(headadd);
-        }
-        else
-        {
-            if ((*headadd)->next == NULL)
-            {
-                printf("Invalid Position! Length of the list is only 1 and last valid position is 0\n");
-            }
-            else
-            {
-                Node *current = *headadd;
-                int i;
-                for (i = 1; (current->next->next) != NULL && i < pos; i++)
-                {
-                    current = current->next;
-                }
-                if ((current->next->next == NULL) && (i != pos))
-                {
-                    printf("Invalid Position! Length of the list is only %d and last valid position is %d\n", i + 1, i);
-                }
-                else
-                {
-                    Node *deadNode = current->next;
-                    current->next = current->next->next;
-                    free(deadNode);
-                }
-            }
-        }
+        delete_at_head(headadd);
+        return;
     }
+    Node *precederNode = traverseToPos(*headadd, pos - 1);
+    if (precederNode==NULL)
+    {
+        printf("List is empty. Nothing to delele!\n");
+        return;
+    }
+    else if (precederNode->next == NULL)
+    {
+        printf("Invalid Position! Position is out of range.\n");
+        return;
+    }
+    deleteNode(headadd, precederNode);
 }
 
 void delete_the_key(Node **headadd, int key)
 {
-    if (*headadd == NULL)
+    if (*headadd==NULL)
     {
-        printf("List is empty. Nothing to delete.\n");
+        printf("List is empty. Nothing to delele!\n");
+    }
+    else if ((*headadd)->data==key)
+    {
+        delete_at_head(headadd);
     }
     else
     {
-        if ((*headadd)->data == key)
+        Node *priorToKey = traverseToPriorToKey(*headadd, key);
+        if (priorToKey->next==NULL)
         {
-            delete_at_head(headadd);
+            printf("Key not found!\n");
         }
-        else
+        else if (deleteNode(headadd, priorToKey))
         {
-            if ((*headadd)->next == NULL)
-            {
-                printf("Key not found!\n");
-            }
-            else
-            {
-                Node *current = *headadd;
-                while ((current->next->next != NULL) && (current->next->data != key))
-                {
-                    current = current->next;
-                }
-                if ((current->next->next == NULL) && (current->next->data != key))
-                {
-                    printf("Key not found!\n");
-                }
-                else
-                {
-                    Node *deadNode = current->next;
-                    current->next = current->next->next;
-                    free(deadNode);
-                }
-            }
+            printf("List is empty. Nothing to delete.\n");
         }
+        
     }
 }
 
@@ -321,6 +337,12 @@ int main()
     printNode(head);
 
     delete_at_pos(&head, -46);
+    printNode(head);
+
+    delete_the_key(&head, 86);
+    printNode(head);
+    
+    delete_the_key(&head, 22);
     printNode(head);
 
     freeList(&head);
