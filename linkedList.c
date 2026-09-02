@@ -203,11 +203,11 @@ void insert_before_key(Node **headadd, int d, int key)
         return;
     }
     Node *priorToKey = traverseToPriorToKey(*headadd, key);
-    if (priorToKey==NULL)
+    if (priorToKey == NULL)
     {
         insert_at_head(headadd, d);
     }
-    else if (priorToKey->next==NULL)
+    else if (priorToKey->next == NULL)
     {
         printf("Key not found!\n");
     }
@@ -283,6 +283,22 @@ void delete_the_key(Node **headadd, int key)
     }
 }
 
+void delete_all_key(Node **headadd, int key)
+{
+    Node *priorToKey = traverseToPriorToKey(*headadd, key);
+    while (priorToKey == NULL)
+    {
+        delete_at_head(headadd);
+        if (*headadd==NULL) return;
+        priorToKey = traverseToPriorToKey(*headadd, key);
+    }
+    while (priorToKey->next!=NULL)
+    {
+        deleteNode(headadd, priorToKey);
+        priorToKey=traverseToPriorToKey(priorToKey, key);
+    }
+}
+
 void freeList(Node **headadd)
 {
     Node *current = *headadd;
@@ -337,10 +353,13 @@ int main()
     insert_after_key(&head, 23, 89);
     printNode(head);
 
-    insert_before_key(&head, 44, 20);
+    insert_before_key(&head, 10, 20);
     printNode(head);
 
     insert_before_key(&head, 0, 56);
+    printNode(head);
+
+    insert_before_key(&head, 0, 65);
     printNode(head);
 
     delete_at_head(&head);
@@ -365,5 +384,33 @@ int main()
     printNode(head);
 
     freeList(&head);
+
+    Node *list = NULL;
+    appendNode(&list, 10);
+    appendNode(&list, 10);
+    appendNode(&list, 10);
+    appendNode(&list, 20);
+    appendNode(&list, 30);
+    appendNode(&list, 10);
+    appendNode(&list, 10);
+    appendNode(&list, 40);
+    appendNode(&list, 50);
+    appendNode(&list, 60);
+    appendNode(&list, 10);
+    appendNode(&list, 70);
+    appendNode(&list, 80);
+    appendNode(&list, 90);
+    appendNode(&list, 10);
+    appendNode(&list, 100);
+    appendNode(&list, 110);
+    appendNode(&list, 10);
+    appendNode(&list, 120);
+    appendNode(&list, 10);
+    printNode(list);
+
+    delete_all_key(&list, 10);
+    printNode(list);
+
+    freeList(&list);
     return 0;
 }
