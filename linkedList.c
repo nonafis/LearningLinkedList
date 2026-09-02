@@ -111,6 +111,8 @@ Node *traverseToPriorToKey(Node *head, int key)
 {
     if (head == NULL)
         return NULL;
+    if (head->data == key)
+        return NULL;
     Node *current = head;
     while ((current->next != NULL) && ((current->next->data) != key))
     {
@@ -146,15 +148,13 @@ int deleteNode(Node **headadd, Node *precNode)
 
 void appendNode(Node **headadd, int d)
 {
-    Node *newNode = createNode(d);
     Node *tail = traverseToTail(*headadd);
-    insertNode(headadd, tail, newNode);
+    insertNode(headadd, tail, createNode(d));
 }
 
 void insert_at_head(Node **headadd, int d)
 {
-    Node *newNode = createNode(d);
-    insertNode(headadd, NULL, newNode);
+    insertNode(headadd, NULL, createNode(d));
 }
 
 void insert_at_pos(Node **headadd, int d, int pos)
@@ -164,15 +164,14 @@ void insert_at_pos(Node **headadd, int d, int pos)
         printf("Invalid position! Position can't be negative.\n");
         return;
     }
-    Node *newNode = createNode(d);
     if (*headadd == NULL || pos == 0)
     {
-        insertNode(headadd, NULL, newNode); // if empty list then newNode becomes head and its next is previous *headadd which was NULL, if it not empty but pos is 0 then newNode becomes head and previous list gets attached to the next of newNode.
+        insertNode(headadd, NULL, createNode(d)); // if empty list then newNode becomes head and its next is previous *headadd which was NULL, if it not empty but pos is 0 then newNode becomes head and previous list gets attached to the next of newNode.
     }
     else
     {
         Node *precederNode = traverseToPos(*headadd, pos - 1);
-        insertNode(headadd, precederNode, newNode);
+        insertNode(headadd, precederNode, createNode(d));
     }
 }
 
@@ -191,9 +190,30 @@ void insert_after_key(Node **headadd, int d, int key)
         }
         else
         {
-            Node *newNode = createNode(d);
-            insertNode(headadd, keyNode, newNode);
+            insertNode(headadd, keyNode, createNode(d));
         }
+    }
+}
+
+void insert_before_key(Node **headadd, int d, int key)
+{
+    if (*headadd == NULL)
+    {
+        printf("Insertion using key cannot be done in an empty list.\n");
+        return;
+    }
+    Node *priorToKey = traverseToPriorToKey(*headadd, key);
+    if (priorToKey==NULL)
+    {
+        insert_at_head(headadd, d);
+    }
+    else if (priorToKey->next==NULL)
+    {
+        printf("Key not found!\n");
+    }
+    else
+    {
+        insertNode(headadd, priorToKey, createNode(d));
     }
 }
 
@@ -226,13 +246,13 @@ void delete_at_pos(Node **headadd, int pos)
         printf("Invalid position! Position can't be negative.\n");
         return;
     }
-    if (pos==0)
+    if (pos == 0)
     {
         delete_at_head(headadd);
         return;
     }
     Node *precederNode = traverseToPos(*headadd, pos - 1);
-    if (precederNode==NULL)
+    if (precederNode == NULL)
     {
         printf("List is empty. Nothing to delele!\n");
         return;
@@ -247,26 +267,19 @@ void delete_at_pos(Node **headadd, int pos)
 
 void delete_the_key(Node **headadd, int key)
 {
-    if (*headadd==NULL)
-    {
-        printf("List is empty. Nothing to delele!\n");
-    }
-    else if ((*headadd)->data==key)
+
+    Node *priorToKey = traverseToPriorToKey(*headadd, key);
+    if (priorToKey == NULL)
     {
         delete_at_head(headadd);
     }
+    else if (priorToKey->next == NULL)
+    {
+        printf("Key not found!\n");
+    }
     else
     {
-        Node *priorToKey = traverseToPriorToKey(*headadd, key);
-        if (priorToKey->next==NULL)
-        {
-            printf("Key not found!\n");
-        }
-        else if (deleteNode(headadd, priorToKey))
-        {
-            printf("List is empty. Nothing to delete.\n");
-        }
-        
+        deleteNode(headadd, priorToKey);
     }
 }
 
@@ -324,6 +337,12 @@ int main()
     insert_after_key(&head, 23, 89);
     printNode(head);
 
+    insert_before_key(&head, 44, 20);
+    printNode(head);
+
+    insert_before_key(&head, 0, 56);
+    printNode(head);
+
     delete_at_head(&head);
     printNode(head);
 
@@ -341,7 +360,7 @@ int main()
 
     delete_the_key(&head, 86);
     printNode(head);
-    
+
     delete_the_key(&head, 22);
     printNode(head);
 
