@@ -8,6 +8,15 @@ typedef struct node
     struct node *next;
 } Node;
 
+typedef struct DNode
+{
+    int data;
+    struct DNode *prev;
+    struct DNode *next;
+} DNode;
+
+
+
 Node *createNode(int d)
 {
     Node *newNode = malloc(sizeof(Node));
@@ -22,6 +31,42 @@ Node *createNode(int d)
         newNode->next = NULL;
         return newNode;
     }
+}
+
+DNode *createDNode(int d)
+{
+    DNode *newNode = malloc(sizeof(DNode));
+    if (newNode == NULL)
+    {
+        printf("Node creation failed. Memory Allocation Unsuccessful.\n");
+        exit(1);
+    }
+    else
+    {
+        newNode->data = d;
+        newNode->next = NULL;
+        newNode->prev = NULL;
+        return newNode;
+    }
+}
+
+DNode *s2d(Node *head)
+{
+    if (head == NULL)
+    {
+        return NULL;
+    }
+    Node *current = head;
+    DNode *dlhead = createDNode(current->data);
+    DNode *dlcurrent = dlhead;
+    while (current->next != NULL)
+    {
+        current = current->next;
+        dlcurrent->next = createDNode(current->data);
+        dlcurrent->next->prev=dlcurrent;
+        dlcurrent=dlcurrent->next;
+    }
+    return dlhead;
 }
 
 void printNode(Node *head)
@@ -57,7 +102,7 @@ void insertNode(Node **headadd, Node *precederNode, Node *newNode)
     }
 }
 
-Node *traverseToTail(Node *head)
+Node *getTail(Node *head)
 {
     if (head == NULL)
         return NULL;
@@ -69,7 +114,7 @@ Node *traverseToTail(Node *head)
     return tail;
 }
 
-Node *traverseToPos(Node *head, int pos)
+Node *getByPos(Node *head, int pos)
 {
     if (head == NULL)
         return NULL;
@@ -81,7 +126,7 @@ Node *traverseToPos(Node *head, int pos)
     return current;
 }
 
-Node *traverseToKey(Node *head, int key)
+Node *getByKey(Node *head, int key)
 {
     if (head == NULL)
         return NULL;
@@ -93,7 +138,7 @@ Node *traverseToKey(Node *head, int key)
     return current;
 }
 
-Node *traverseToPriorToTail(Node *head)
+Node *getPriorToTail(Node *head)
 {
     if (head == NULL)
         return NULL;
@@ -107,7 +152,7 @@ Node *traverseToPriorToTail(Node *head)
     return priorToTail;
 }
 
-Node *traverseToPriorToKey(Node *head, int key)
+Node *getPriorToKey(Node *head, int key)
 {
     if (head == NULL)
         return NULL;
@@ -148,7 +193,7 @@ int deleteNode(Node **headadd, Node *precNode)
 
 void appendNode(Node **headadd, int d)
 {
-    Node *tail = traverseToTail(*headadd);
+    Node *tail = getTail(*headadd);
     insertNode(headadd, tail, createNode(d));
 }
 
@@ -170,7 +215,7 @@ void insert_at_pos(Node **headadd, int d, int pos)
     }
     else
     {
-        Node *precederNode = traverseToPos(*headadd, pos - 1);
+        Node *precederNode = getByPos(*headadd, pos - 1);
         insertNode(headadd, precederNode, createNode(d));
     }
 }
@@ -183,7 +228,7 @@ void insert_after_key(Node **headadd, int d, int key)
     }
     else
     {
-        Node *keyNode = traverseToKey(*headadd, key);
+        Node *keyNode = getByKey(*headadd, key);
         if ((keyNode->next == NULL) && (keyNode->data != key))
         {
             printf("Key not found!\n");
@@ -202,7 +247,7 @@ void insert_before_key(Node **headadd, int d, int key)
         printf("Insertion using key cannot be done in an empty list.\n");
         return;
     }
-    Node *priorToKey = traverseToPriorToKey(*headadd, key);
+    Node *priorToKey = getPriorToKey(*headadd, key);
     if (priorToKey == NULL)
     {
         insert_at_head(headadd, d);
@@ -227,7 +272,7 @@ void delete_at_head(Node **headadd)
 
 void delete_at_tail(Node **headadd)
 {
-    Node *priorToTail = traverseToPriorToTail(*headadd);
+    Node *priorToTail = getPriorToTail(*headadd);
     if (priorToTail == NULL)
     {
 
@@ -251,7 +296,7 @@ void delete_at_pos(Node **headadd, int pos)
         delete_at_head(headadd);
         return;
     }
-    Node *precederNode = traverseToPos(*headadd, pos - 1);
+    Node *precederNode = getByPos(*headadd, pos - 1);
     if (precederNode == NULL)
     {
         printf("List is empty. Nothing to delele!\n");
@@ -268,7 +313,7 @@ void delete_at_pos(Node **headadd, int pos)
 void delete_the_key(Node **headadd, int key)
 {
 
-    Node *priorToKey = traverseToPriorToKey(*headadd, key);
+    Node *priorToKey = getPriorToKey(*headadd, key);
     if (priorToKey == NULL)
     {
         delete_at_head(headadd);
@@ -285,17 +330,18 @@ void delete_the_key(Node **headadd, int key)
 
 void delete_all_key(Node **headadd, int key)
 {
-    Node *priorToKey = traverseToPriorToKey(*headadd, key);
+    Node *priorToKey = getPriorToKey(*headadd, key);
     while (priorToKey == NULL)
     {
         delete_at_head(headadd);
-        if (*headadd==NULL) return;
-        priorToKey = traverseToPriorToKey(*headadd, key);
+        if (*headadd == NULL)
+            return;
+        priorToKey = getPriorToKey(*headadd, key);
     }
-    while (priorToKey->next!=NULL)
+    while (priorToKey->next != NULL)
     {
         deleteNode(headadd, priorToKey);
-        priorToKey=traverseToPriorToKey(priorToKey, key);
+        priorToKey = getPriorToKey(priorToKey, key);
     }
 }
 
