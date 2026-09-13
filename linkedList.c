@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "rawMode.h"
 
 typedef struct node
 {
@@ -58,6 +59,7 @@ DNode *createDNode(int d);
 void initDList(linkedList *list);
 linkedList *createDList();
 void displayDList(linkedList *list);
+void clearScreen();
 
 LNode *dgetByPos(linkedList *list, int pos);
 LNode *dgetByKeyFromNode(linkedList *list, int key, LNode *start);
@@ -79,129 +81,70 @@ void ddeleteAllKey(linkedList *list, int key);
 
 linkedList *s2d(Node *head);
 
+void clearList(linkedList *list);
 void freeDList(linkedList **listadd);
 
 int main()
 {
-    Node *list = NULL;
-    appendNode(&list, 10);
-    appendNode(&list, 10);
-    appendNode(&list, 10);
-    appendNode(&list, 20);
-    appendNode(&list, 30);
-    appendNode(&list, 10);
-    appendNode(&list, 10);
-    appendNode(&list, 40);
-    appendNode(&list, 50);
-    appendNode(&list, 60);
-    appendNode(&list, 10);
-    appendNode(&list, 70);
-    appendNode(&list, 80);
-    appendNode(&list, 90);
-    appendNode(&list, 10);
-    appendNode(&list, 100);
-    appendNode(&list, 110);
-    appendNode(&list, 10);
-    appendNode(&list, 120);
-    appendNode(&list, 10);
-    // printNode(list);
-
-    linkedList *LL = createDList();
-    LL = s2d(list);
-    displayDList(LL);
-    ddeleteAllKey(LL, 10);
-    displayDList(LL);
-
-    // linkedList *list = createDList();
-    // dinsertAtHead(list, 33);
-    // dinsertAtHead(list, 25);
-    // appendDList(list, 10);
-    // appendDList(list, 20);
-    // appendDList(list, 30);
-    // dinsertAtPos(list, 40, 5);
-    // appendDList(list, 50);
-    // dinsertAfterKey(list, 60, 50);
-    // appendDList(list, 70);
-    // dinsertBeforeKey(list, 65, 70);
-    // displayDList(list);
-
-    // freeDList(&list);
-
-    // Node *head = NULL;
-
-    // appendNode(&head, 10);
-    // appendNode(&head, 20);
-    // appendNode(&head, 30);
-    // appendNode(&head, 40);
-    // appendNode(&head, 50);
-    // printNode(head);
-
-    // insert_at_head(&head, 35);
-    // printNode(head);
-
-    // insert_at_head(&head, 90);
-    // printNode(head);
-
-    // insert_at_pos(&head, 70, 5);
-    // printNode(head);
-
-    // insert_at_pos(&head, 88, 8);
-    // printNode(head);
-
-    // insert_at_pos(&head, 65, 0);
-    // printNode(head);
-
-    // insert_at_pos(&head, 43, 15);
-    // printNode(head);
-
-    // insert_after_key(&head, 37, 10);
-    // printNode(head);
-
-    // insert_after_key(&head, 86, 37);
-    // printNode(head);
-
-    // insert_after_key(&head, 45, 43);
-    // printNode(head);
-
-    // insert_after_key(&head, 23, 89);
-    // printNode(head);
-
-    // insert_before_key(&head, 10, 20);
-    // printNode(head);
-
-    // insert_before_key(&head, 0, 56);
-    // printNode(head);
-
-    // insert_before_key(&head, 0, 65);
-    // printNode(head);
-
-    // delete_at_head(&head);
-    // printNode(head);
-
-    // delete_at_tail(&head);
-    // printNode(head);
-
-    // delete_at_pos(&head, 10);
-    // printNode(head);
-
-    // delete_at_pos(&head, 11);
-    // printNode(head);
-
-    // delete_at_pos(&head, -46);
-    // printNode(head);
-
-    // delete_the_key(&head, 86);
-    // printNode(head);
-
-    // delete_the_key(&head, 22);
-    // printNode(head);
-
-    // freeList(&head);
-
-    // delete_all_key(&list, 10);
-    // printNode(list);
-
-    // freeList(&list);
+    //no list menu
+    int menu = 0;
+    // print no list menu
+    // option: c
+        //isList menu
+        menu = 1;
+            //if length==0
+                //option: a
+                    //node added and back to isList menu
+                //option: f
+                    //delete the whole list and back to no list menu
+            //else (if length != 0)
+                //option: n
+                    //navigation menu
+                    menu = 4;
+                        //navigate through list and
+                            // option [right arrow]: move the current to right
+                            // option [left arrow]: move the current to left
+                            // option i: insert here
+                            // option d: delete this
+                            // option b: back (back to isList menu)
+                //option: i
+                    //insert menu
+                    menu = 2;
+                        //option: h
+                            //head insert and back to isList menu
+                        //option: t
+                            //tail insert and back to isList menu
+                        //option: p
+                            // pos insert and back to isList menu
+                        //option: k
+                            //key insert menu
+                            menu = 3;
+                                //option: a
+                                    //after key and back to isList menu
+                                //option: b
+                                    //before key and back to isList menu
+                //option: d
+                    //delete menu:
+                    menu = 5;
+                        //option: h
+                            //head delete and back to isList menu
+                        //option: t
+                            //tail delete and back to isList menu
+                        //option: p
+                            // pos delete and back to isList menu
+                        //option: k
+                            //key delete menu
+                            menu = 3;
+                                //option: o
+                                    //first occurence and back to isList menu
+                                //option: a
+                                    //all occurences and back to isList menu
+                        //option: a
+                            //delete every node and back to isList menu
+                //option: f
+                    //delete the whole list and back to no list menu 
+    // option: q
+        //return 0;
     return 0;
 }
 
@@ -695,10 +638,11 @@ linkedList *s2d(Node *head)
 
 void displayDList(linkedList *list)
 {
+    printf("===Linked List===\n");
     LNode *dcurrent = list->preHead.next;
     while ((dcurrent != &(list->postTail)))
     {
-        printf("%d->", ((DNode *)(dcurrent))->data);
+        printf("%d<->", ((DNode *)(dcurrent))->data);
         dcurrent = dcurrent->next;
     }
     printf("NULL\n");
@@ -717,20 +661,31 @@ void freeList(Node **headadd)
     *headadd = NULL;
 }
 
-void freeDList(linkedList **listadd)
+void clearScreen()
 {
-    if (!(*listadd))
+    printf("\033[2J\033[H");
+    fflush(stdout);
+}
+
+void clearList(linkedList *list)
+{
+    if (!(list))
     {
         return;
     }
-    LNode *dcurrent = (*listadd)->preHead.next;
+    LNode *dcurrent = (list)->preHead.next;
     LNode *next;
-    while (dcurrent != &((*listadd)->postTail))
+    while (dcurrent != &((list)->postTail))
     {
         next = dcurrent->next;
         free((DNode *)(dcurrent));
         dcurrent = next;
     }
+}
+
+void freeDList(linkedList **listadd)
+{
+    clearList(*listadd);
     free((*listadd));
     *listadd = NULL;
 }

@@ -3,19 +3,19 @@
 
 #ifdef _WIN32
 #include <conio.h>
-static int rm = 0; // will this variable rm be accessible even in main.c?
+static int rm = 0;
 static char c = '\0';
-static void enableRawMode()
-{
-    rm = 1;
-}
 static void disableRawMode()
 {
     rm = 0;
 }
+static void enableRawMode()
+{
+    rm = 1;
+    atexit(disableRawMode);
+}
 static void readK()
 {
-
     c = _getch();
 }
 #else
