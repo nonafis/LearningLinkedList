@@ -134,7 +134,7 @@ int main()
                             // pos delete and back to isList menu
                         //option: k
                             //key delete menu
-                            menu = 3;
+                            menu = 6;
                                 //option: o
                                     //first occurence and back to isList menu
                                 //option: a
@@ -664,6 +664,12 @@ void freeList(Node **headadd)
 void clearScreen()
 {
     printf("\033[2J\033[H");
+    fflush(stdout);
+}
+
+void clearLine()
+{
+    printf("\033[A\033[2K");
     fflush(stdout);
 }
 
