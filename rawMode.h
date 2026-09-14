@@ -4,7 +4,9 @@
 #ifdef _WIN32
 #include <conio.h>
 static int rm = 0;
-static char c = '\0';
+static int c = '\0';
+static int k = '\0';
+
 static void disableRawMode()
 {
     rm = 0;
@@ -14,9 +16,33 @@ static void enableRawMode()
     rm = 1;
     atexit(disableRawMode);
 }
+static int c2k(int c)
+{
+    if (c == 224)
+    {
+        c = _getch();
+        if (c == 75)
+        {
+            return 300;
+        }
+        else if (c == 77)
+        {
+            return 400;
+        }
+        else
+        {
+            return c;
+        }
+    }
+    else
+    {
+        return c;
+    }
+}
 static void readK()
 {
     c = _getch();
+    k = c2k(c);
 }
 #else
 #include <ctype.h>
@@ -57,10 +83,46 @@ static void enableRawMode()
         rm = 1;
 }
 static char c = '\0';
+static int k = '\0';
+static int arrowkeyinterpreter(char c)
+{
+    if (c == '\x1b')
+    {
+        if (read(STDIN_FILENO, &c, 1) != 1)
+            return '\x1b';
+
+        if (c == '[')
+        {
+            if (read(STDIN_FILENO, &c, 1) != 1)
+                return '\x1b';
+            if (c == 'D')
+            {
+                return 300;
+            }
+            else if (c == 'C')
+            {
+                return 400;
+            }
+            else
+            {
+                return (unsigned char)c;
+            }
+        }
+        else
+        {
+            return (unsigned char)c;
+        }
+    }
+    else
+    {
+        return (unsigned char)c;
+    }
+}
 static void readK()
 {
     if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
         die("read");
+    k = c2k(c);
 }
 
 #endif
