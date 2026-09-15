@@ -72,9 +72,9 @@ void deleteDNode(linkedList *list, LNode *deadNode);
 
 void appendDList(linkedList *list, int d);
 void dinsertAtHead(linkedList *list, int d);
-void dinsertAtPos(linkedList *list, int d, int pos);
-void dinsertAfterKey(linkedList *list, int d, int key);
-void dinsertBeforeKey(linkedList *list, int d, int key);
+int dinsertAtPos(linkedList *list, int d, int pos);
+int dinsertAfterKey(linkedList *list, int d, int key);
+int dinsertBeforeKey(linkedList *list, int d, int key);
 
 void ddeleteHead(linkedList *list);
 void ddeleteTail(linkedList *list);
@@ -88,6 +88,7 @@ void clearList(linkedList *list);
 void freeDList(linkedList **listadd);
 
 int printemptylistmenu(linkedList *list);
+int insertionmenu(linkedList *list);
 int navigationmenu(linkedList *list);
 
 int getInput(const char *);
@@ -103,8 +104,9 @@ int main()
     enableRawMode();
     list = createDList();
     appendDList(list, 10);
+    // dinsertAtPos(list, 40, 2);
     // displayDList(list);
-    navigationmenu(list);
+    insertionmenu(list);
     return 0;
 }
 
@@ -442,11 +444,13 @@ LNode *dgetByPos(linkedList *list, int pos)
     if (pos < 0)
     {
         printf("Position can't be negative.\n");
+        fflush(stdout);
         return NULL;
     }
     if (pos >= list->length)
     {
         printf("Position out of range.\n");
+        fflush(stdout);
         return NULL;
     }
     LNode *posNode = list->preHead.next;
@@ -504,37 +508,52 @@ void dinsertAtHead(linkedList *list, int d)
     insertDNode(list, &(list->preHead), &(newNode->link));
 }
 
-void dinsertAtPos(linkedList *list, int d, int pos)
+int dinsertAtPos(linkedList *list, int d, int pos)
 {
     if (pos == list->length)
     {
         appendDList(list, d);
-        return;
+        return 1;
     }
     LNode *posNode;
     if (posNode = dgetByPos(list, pos))
     {
         LNode *priorNode = posNode->prev;
         insertDNode(list, priorNode, &(createDNode(d)->link));
+        return 1;
+    }
+    else
+    {
+        return 0;
     }
 }
 
-void dinsertAfterKey(linkedList *list, int d, int key)
+int dinsertAfterKey(linkedList *list, int d, int key)
 {
     LNode *keyNode;
     if (keyNode = dgetByKey(list, key))
     {
         insertDNode(list, keyNode, &(createDNode(d)->link));
+        return 1;
+    }
+    else
+    {
+        return 0;
     }
 }
 
-void dinsertBeforeKey(linkedList *list, int d, int key)
+int dinsertBeforeKey(linkedList *list, int d, int key)
 {
     LNode *keyNode;
     if (keyNode = dgetByKey(list, key))
     {
         LNode *priorNode = keyNode->prev;
         insertDNode(list, priorNode, &(createDNode(d)->link));
+        return 1;
+    }
+    else
+    {
+        return 0;
     }
 }
 
@@ -664,7 +683,8 @@ int getInput(const char *string)
     printf("%s", string);
     while (scanf("%d", &input) != 1)
     {
-        while ((c=getchar())!='\n' && c != EOF);
+        while ((c = getchar()) != '\n' && c != EOF)
+            ;
         printf("Invalid Input! Try again.\n");
         fflush(stdout);
         timer(10);
@@ -672,7 +692,8 @@ int getInput(const char *string)
         clearLine();
         printf("%s", string);
     }
-    while ((c=getchar())!='\n' && c != EOF);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
     enableRawMode();
     return input;
 }
@@ -749,80 +770,92 @@ int printemptylistmenu(linkedList *list)
 //     // more to come
 // }
 
-// int insertionmenu(linkedList *list)
-// {
-//     while (1)
-//     {
-//         clearScreen();
-//         displayDList(list);
-//         printf("============================================================\n");
-//         printf("h = insert at head  t = insert at tail  p = insert at given position\nka = insert after given key  kb = insert before key  b = back to previous menu\nf = delete list   q = quit program\n");
-//         while (1)
-//         {
-//             readK();
-//             if (k == 'h')
-//             {
-//                 dinsertAtHead(list, getInput("Enter Data:"));
-//                 break;
-//             }
-//             else if (k == 't')
-//             {
-//                 appendDList(list, getInput("Enter Data:"));
-//                 break;
-//             }
-//             else if (k == 'p')
-//             {
-//                 dinsertAtPos(list, getInput("Enter Data:"), getInput("Enter the position:"));
-//                 break;
-//             }
-//             else if (k == 'k')
-//             {
-//                 clearLine();
-//                 clearLine();
-//                 printf("============================================================\n");
-//                 printf("ka = insert after given key  kb = insert before key\n");
-//                 int r = timeoutC(5);
-//                 if (r > 0)
-//                 {
-//                     readK();
-//                     if (k == 'a')
-//                     {
-//                         dinsertAfterKey(list, getInput("Enter Data:"), getInput("Enter Key:"));
-//                         break;
-//                     }
-//                     if (k == 'b')
-//                     {
-//                         dinsertAfterKey(list, getInput("Enter Data:"), getInput("Enter Key:"));
-//                         break;
-//                     }
-//                 }
-//                 else if (r == 0)
-//                 {
-//                     clearLine();
-//                     clearLine();
-//                     printf("============================================================\n");
-//                     printf("h = insert at head  t = insert at tail  p = insert at given position\nka = insert after given key  kb = insert before key  b = back to previous menu\nq = quit program\n");
-//                 }
-//                 else
-//                 {
-//                     exit(1);
-//                 }
-//             }
-//             else if (k == 'b')
-//             {
-//                 return 1;
-//             }
-//             else if (k == 'q')
-//             {
-//                 return 0;
-//             }
-//             else
-//             {
-//                 invalidInput();
-//             }
-//         }
-//     }
-// }
+int insertionmenu(linkedList *list)
+{
+    while (1)
+    {
+        clearScreen();
+        displayDList(list);
+        printf("============================================================\n");
+        printf("h = insert at head  t = insert at tail  p = insert at given position\nka = insert after given key  kb = insert before key\nb = back to previous menu  q = quit program\n");
+        while (1)
+        {
+            readK();
+            if (k == 'h')
+            {
+                dinsertAtHead(list, getInput("Enter Data:"));
+                break;
+            }
+            else if (k == 't')
+            {
+                appendDList(list, getInput("Enter Data:"));
+                break;
+            }
+            else if (k == 'p')
+            {
+                if (!(dinsertAtPos(list, getInput("Enter Data:"), getInput("Enter the position:"))))
+                {
+                    timer(15);
+                }
+                break;
+            }
+            else if (k == 'k')
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    clearLine();
+                }
+                printf("============================================================\n");
+                printf("ka = insert after given key  kb = insert before key\n");
+                int r = timeoutC(5);
+                if (r > 0)
+                {
+                    readK();
+                    if (k == 'a')
+                    {
+                        if (!(dinsertAfterKey(list, getInput("Enter Data:"), getInput("Enter Key:"))))
+                        {
+                            timer(15);
+                        }
+                        break;
+                    }
+                    else if (k == 'b')
+                    {
+                        if (!(dinsertBeforeKey(list, getInput("Enter Data:"), getInput("Enter Key:"))))
+                        {
+                            timer(15);
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else if (r == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    exit(1);
+                }
+            }
+            else if (k == 'b')
+            {
+                return 1;
+            }
+            else if (k == 'q')
+            {
+                return 0;
+            }
+            else
+            {
+                invalidInput();
+            }
+        }
+    }
+}
 
 void invalidInput()
 {
