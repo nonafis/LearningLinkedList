@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "rawMode.h"
+#include "timer.h"
 
 typedef struct node
 {
@@ -59,7 +60,9 @@ DNode *createDNode(int d);
 void initDList(linkedList *list);
 linkedList *createDList();
 void displayDList(linkedList *list);
+void displayDListWithCursor(linkedList *list, LNode *cur);
 void clearScreen();
+void clearLine();
 
 LNode *dgetByPos(linkedList *list, int pos);
 LNode *dgetByKeyFromNode(linkedList *list, int key, LNode *start);
@@ -84,67 +87,24 @@ linkedList *s2d(Node *head);
 void clearList(linkedList *list);
 void freeDList(linkedList **listadd);
 
+int printemptylistmenu(linkedList *list);
+int navigationmenu(linkedList *list);
+
+int getInput(const char *);
+void printlnreo();
+void printleo();
+void printreo();
+void printo();
+void invalidInput();
+
 int main()
 {
-    //no list menu
-    int menu = 0;
-    // print no list menu
-    // option: c
-        //isList menu
-        menu = 1;
-            //if length==0
-                //option: a
-                    //node added and back to isList menu
-                //option: f
-                    //delete the whole list and back to no list menu
-            //else (if length != 0)
-                //option: n
-                    //navigation menu
-                    menu = 4;
-                        //navigate through list and
-                            // option [right arrow]: move the current to right
-                            // option [left arrow]: move the current to left
-                            // option i: insert here
-                            // option d: delete this
-                            // option b: back (back to isList menu)
-                //option: i
-                    //insert menu
-                    menu = 2;
-                        //option: h
-                            //head insert and back to isList menu
-                        //option: t
-                            //tail insert and back to isList menu
-                        //option: p
-                            // pos insert and back to isList menu
-                        //option: k
-                            //key insert menu
-                            menu = 3;
-                                //option: a
-                                    //after key and back to isList menu
-                                //option: b
-                                    //before key and back to isList menu
-                //option: d
-                    //delete menu:
-                    menu = 5;
-                        //option: h
-                            //head delete and back to isList menu
-                        //option: t
-                            //tail delete and back to isList menu
-                        //option: p
-                            // pos delete and back to isList menu
-                        //option: k
-                            //key delete menu
-                            menu = 6;
-                                //option: o
-                                    //first occurence and back to isList menu
-                                //option: a
-                                    //all occurences and back to isList menu
-                        //option: a
-                            //delete every node and back to isList menu
-                //option: f
-                    //delete the whole list and back to no list menu 
-    // option: q
-        //return 0;
+    linkedList *list;
+    enableRawMode();
+    list = createDList();
+    appendDList(list, 10);
+    // displayDList(list);
+    navigationmenu(list);
     return 0;
 }
 
@@ -638,7 +598,7 @@ linkedList *s2d(Node *head)
 
 void displayDList(linkedList *list)
 {
-    printf("===Linked List===\n");
+    printf("========================Linked List========================\n");
     LNode *dcurrent = list->preHead.next;
     while ((dcurrent != &(list->postTail)))
     {
@@ -694,4 +654,497 @@ void freeDList(linkedList **listadd)
     clearList(*listadd);
     free((*listadd));
     *listadd = NULL;
+}
+
+int getInput(const char *string)
+{
+    int input;
+    disableRawMode();
+    printf("%s", string);
+    scanf("%d", &input);
+    getchar();
+    enableRawMode();
+    return input;
+}
+
+// menu 0 = home menu (no list menu) {option c = menu 1, option q =return}
+// menu 11=empty list menu {option a = menu 12, option f = menu 0, option q =return}
+// menu 12=non empty list menu {option n = menu 121, option i = menu 122, option d = menu 123, option f = menu 0, option q = return}
+// menu 121= navigation menu {option </>/i,d = menu 121, option b=menu 1}
+// menu 31 = cur at left most menu
+// menu 32 = cur at middle menu
+// menu 33 = cur at right most menu
+// menu 341 = menu 11
+// menu 122= insertion menu {option h/t/p/ka/kb = menu 122, option b = menu 1}
+// menu 123= deletion menu {option h/t/p/ko/ka = menu 123, option b = menu 1}
+
+// void printMenu(int menu)
+// {
+//     switch (menu)
+//     {
+//     case 0:
+//         printNoListMenu();
+//         break;
+//     case 11:
+
+//     default:
+//         break;
+//     }
+// }
+
+// void printnolistmenu()
+// {
+//     printf("========================Linked List========================\n");
+//     printf("No list to see :/\n");
+//     printf("============================================================\n");
+//     printf("c = create list  q = quit program\n");
+// }
+
+int printemptylistmenu(linkedList *list)
+{
+    clearScreen();
+    displayDList(list);
+    printf("============================================================\n");
+    printf("a = add node  f = delete list   q = quit program\n");
+    while (1)
+    {
+        readK();
+        if (k == 'q')
+        {
+            return 0;
+        }
+        else if (k == 'f')
+        {
+            freeDList(&list);
+            return 5;
+        }
+        else if (k == 'a')
+        {
+            appendDList(list, getInput("Enter Data:"));
+            return 1;
+        }
+        else
+        {
+            invalidInput();
+        }
+    }
+}
+
+// int print12menu(linkedList *list)
+// {
+//     clearScreen();
+//     displayDList(list);
+//     printf("============================================================\n");
+//     printf("n = navigate through the list  i = insert node  d = delete node\nf = delete list   q = quit program\n");
+//     // more to come
+// }
+
+// int insertionmenu(linkedList *list)
+// {
+//     while (1)
+//     {
+//         clearScreen();
+//         displayDList(list);
+//         printf("============================================================\n");
+//         printf("h = insert at head  t = insert at tail  p = insert at given position\nka = insert after given key  kb = insert before key  b = back to previous menu\nf = delete list   q = quit program\n");
+//         while (1)
+//         {
+//             readK();
+//             if (k == 'h')
+//             {
+//                 dinsertAtHead(list, getInput("Enter Data:"));
+//                 break;
+//             }
+//             else if (k == 't')
+//             {
+//                 appendDList(list, getInput("Enter Data:"));
+//                 break;
+//             }
+//             else if (k == 'p')
+//             {
+//                 dinsertAtPos(list, getInput("Enter Data:"), getInput("Enter the position:"));
+//                 break;
+//             }
+//             else if (k == 'k')
+//             {
+//                 clearLine();
+//                 clearLine();
+//                 printf("============================================================\n");
+//                 printf("ka = insert after given key  kb = insert before key\n");
+//                 int r = timeoutC(5);
+//                 if (r > 0)
+//                 {
+//                     readK();
+//                     if (k == 'a')
+//                     {
+//                         dinsertAfterKey(list, getInput("Enter Data:"), getInput("Enter Key:"));
+//                         break;
+//                     }
+//                     if (k == 'b')
+//                     {
+//                         dinsertAfterKey(list, getInput("Enter Data:"), getInput("Enter Key:"));
+//                         break;
+//                     }
+//                 }
+//                 else if (r == 0)
+//                 {
+//                     clearLine();
+//                     clearLine();
+//                     printf("============================================================\n");
+//                     printf("h = insert at head  t = insert at tail  p = insert at given position\nka = insert after given key  kb = insert before key  b = back to previous menu\nq = quit program\n");
+//                 }
+//                 else
+//                 {
+//                     exit(1);
+//                 }
+//             }
+//             else if (k == 'b')
+//             {
+//                 return 1;
+//             }
+//             else if (k == 'q')
+//             {
+//                 return 0;
+//             }
+//             else
+//             {
+//                 invalidInput();
+//             }
+//         }
+//     }
+// }
+
+void invalidInput()
+{
+    printf("Invalid input!\n");
+    fflush(stdout);
+    timer(2);
+    clearLine();
+}
+
+// int deletionmenu(linkedList *list)
+// {
+//     int menu;
+//     while (1)
+//     {
+//         clearScreen();
+//         displayDList(list);
+//         printf("============================================================\n");
+//         printf("h = delete head node  t = insert tail node  p = delete node at given position\nko = delete node matching the given key (first occurence)\nka = delete node matching the given key (all occurences)\na = delete all nodes  f = delete list\nb = back to previous menu  q = quit program\n");
+//         while (1)
+//         {
+//             readK();
+//             if (k == 'h')
+//             {
+//                 dinsertAtHead(list, getInput("Enter Data:"));
+//                 if (list->length == 0)
+//                 {
+//                     menu = printemptylistmenu(list);
+//                     if (!menu)
+//                     {
+//                         return 0;
+//                     }
+//                     else if (menu == 5)
+//                     {
+//                         return 5;
+//                     }
+//                 }
+//                 break;
+//             }
+//             else if (k == 't')
+//             {
+//                 appendDList(list, getInput("Enter Data:"));
+//                 if (list->length == 0)
+//                 {
+//                     menu = printemptylistmenu(list);
+//                     if (!menu)
+//                     {
+//                         return 0;
+//                     }
+//                     else if (menu == 5)
+//                     {
+//                         return 5;
+//                     }
+//                 }
+//                 break;
+//             }
+//             else if (k == 'p')
+//             {
+//                 dinsertAtPos(list, getInput("Enter Data:"), getInput("Enter the position:"));
+//                 if (list->length == 0)
+//                 {
+//                     menu = printemptylistmenu(list);
+//                     if (!menu)
+//                     {
+//                         return 0;
+//                     }
+//                     else if (menu == 5)
+//                     {
+//                         return 5;
+//                     }
+//                 }
+//                 break;
+//             }
+//             else if (k == 'k')
+//             {
+//                 clearLine();
+//                 clearLine();
+//                 printf("============================================================\n");
+//                 printf("ko = delete the first occurence  kb = delete all the occurences\n");
+//                 int r = timeoutC(5);
+//                 if (r > 0)
+//                 {
+//                     readK();
+//                     if (k == 'a')
+//                     {
+//                         dinsertAfterKey(list, getInput("Enter Data:"), getInput("Enter Key:"));
+//                         if (list->length == 0)
+//                         {
+//                             menu = printemptylistmenu(list);
+//                             if (!menu)
+//                             {
+//                                 return 0;
+//                             }
+//                             else if (menu == 5)
+//                             {
+//                                 return 5;
+//                             }
+//                         }
+//                         break;
+//                     }
+//                     else if (k == 'b')
+//                     {
+//                         dinsertBeforeKey(list, getInput("Enter Data:"), getInput("Enter Key:"));
+//                         if (list->length == 0)
+//                         {
+//                             menu = printemptylistmenu(list);
+//                             if (!menu)
+//                             {
+//                                 return 0;
+//                             }
+//                             else if (menu == 5)
+//                             {
+//                                 return 5;
+//                             }
+//                         }
+//                         break;
+//                     }
+//                 }
+//                 else if (r == 0)
+//                 {
+//                     clearLine();
+//                     clearLine();
+//                     printf("============================================================\n");
+//                     printf("h = delete head node  t = insert tail node  p = delete node at given position\nko = delete node matching the given key (first occurence)\nka = delete node matching the given key (all occurences)\na = delete all nodes  f = delete list\nb = back to previous menu  q = quit program\n");
+//                 }
+//                 else
+//                 {
+//                     exit(1);
+//                 }
+//             }
+//             else if (k == 'a')
+//             {
+//                 clearList(list);
+//                 menu = printemptylistmenu(list);
+//                 if (!menu)
+//                 {
+//                     return 0;
+//                 }
+//                 else if (menu == 5)
+//                 {
+//                     return 5;
+//                 }
+//                 break;
+//             }
+//             else if (k == 'f')
+//             {
+//                 freeDList(&list);
+//                 return 5;
+//             }
+//             else if (k == 'b')
+//             {
+//                 return 1;
+//             }
+//             else if (k == 'q')
+//             {
+//                 return 0;
+//             }
+//             else
+//             {
+//                 invalidInput();
+//             }
+//         }
+//     }
+// }
+
+int navigationmenu(linkedList *list)
+{
+    int menu;
+    LNode *cur = list->preHead.next;
+    while (1)
+    {
+        clearScreen();
+        displayDListWithCursor(list, cur);
+        if (cur->prev == &(list->preHead) && cur->next == &(list->postTail))
+                {
+                    printlnreo();
+                }
+                else if (cur->prev == &(list->preHead))
+                {
+                    printleo();
+                }
+                else if (cur->next == &(list->postTail))
+                {
+                    printreo();
+                }
+                else
+                {
+                    printo();
+                }
+        while (1)
+        {
+            readK();
+            if ((!(cur->prev == &(list->preHead) && cur->next == &(list->postTail))) && (k == 300 || k == 400))
+            {
+                if (cur->prev == &(list->preHead))
+                {
+                    if (k == 300)
+                    {
+                        invalidInput();
+                    }
+                    else
+                    {
+                        cur = cur->next;
+                        break;
+                    }
+                }
+                else if (cur->next == &(list->postTail))
+                {
+                    if (k == 400)
+                    {
+                        invalidInput();
+                    }
+                    else
+                    {
+                        cur = cur->prev;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (k == 300)
+                    {
+                        cur = cur->prev;
+                        break;
+                    }
+                    else
+                    {
+                        cur = cur->next;
+                        break;
+                    }
+                }
+            }
+            else if (k == 'i')
+            {
+                insertDNode(list, cur->prev, &(createDNode(getInput("Enter Data:"))->link));
+                cur = cur->prev;
+                break;
+            }
+            else if (k == 'd')
+            {
+                cur = cur->prev;
+                deleteDNode(list, cur->next);
+                if (cur->next != &(list->postTail))
+                {
+                    cur = cur->next;
+                }
+                if (list->length == 0)
+                {
+                    menu = printemptylistmenu(list);
+                    if (!menu)
+                    {
+                        return 0;
+                    }
+                    else if (menu == 5)
+                    {
+                        return 5;
+                    }
+                    else if (menu == 1)
+                    {
+                        cur = list->preHead.next;
+                        break;
+                    }
+                    
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else if (k == 'b')
+            {
+                return 1;
+            }
+            else if (k == 'q')
+            {
+                return 0;
+            }
+            else
+            {
+                invalidInput();
+            }
+        }
+    }
+}
+
+void printleo()
+{
+    printf("============================================================\n");
+    printf("\xe2\x86\x92 = move to right  i = insert here  d = delete this\nb = back to previous menu  q = quit program\n");
+}
+
+void printreo()
+{
+    printf("============================================================\n");
+    printf("← = move to left  i = insert here  d = delete this\nb = back to previous menu  q = quit program\n");
+}
+
+void printo()
+{
+    printf("============================================================\n");
+    printf("← = move to left  → = move to right  i = insert here  d = delete this\nb = back to previous menu  q = quit program\n");
+}
+
+void printlnreo()
+{
+    printf("============================================================\n");
+    printf("i = insert here  d = delete this\nb = back to previous menu  q = quit program\n");
+}
+
+void displayDListWithCursor(linkedList *list, LNode *cur)
+{
+    int cursoroffset = 0;
+    printf("========================Linked List========================\n");
+    LNode *dcurrent = list->preHead.next;
+    while (dcurrent != &(list->postTail) && (dcurrent != cur))
+    {
+        cursoroffset += printf("%d<->", ((DNode *)(dcurrent))->data);
+        dcurrent = dcurrent->next;
+    }
+    if (dcurrent==&(list->postTail))
+    {
+        printf("NULL\ntf you had given as cur parameter huh! -_-\n");
+        return;
+    }
+    while (dcurrent != &(list->postTail))
+    {
+        printf("%d<->", ((DNode *)(dcurrent))->data);
+        dcurrent = dcurrent->next;
+    }
+    printf("NULL\n");
+    for (int i = 0; i < cursoroffset; i++)
+    {
+        printf(" ");
+    }
+    printf("^\n");
 }

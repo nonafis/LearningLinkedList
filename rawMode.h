@@ -3,6 +3,7 @@
 
 #ifdef _WIN32
 #include <conio.h>
+#include<windows.h>
 static int rm = 0;
 static int c = '\0';
 static int k = '\0';
@@ -13,6 +14,7 @@ static void disableRawMode()
 }
 static void enableRawMode()
 {
+    SetConsoleOutputCP(CP_UTF8);
     rm = 1;
     atexit(disableRawMode);
 }
