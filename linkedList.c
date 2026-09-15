@@ -986,25 +986,25 @@ int navigationmenu(linkedList *list)
         clearScreen();
         displayDListWithCursor(list, cur);
         if (cur->prev == &(list->preHead) && cur->next == &(list->postTail))
-                {
-                    printlnreo();
-                }
-                else if (cur->prev == &(list->preHead))
-                {
-                    printleo();
-                }
-                else if (cur->next == &(list->postTail))
-                {
-                    printreo();
-                }
-                else
-                {
-                    printo();
-                }
+        {
+            printlnreo();
+        }
+        else if (cur->prev == &(list->preHead))
+        {
+            printleo();
+        }
+        else if (cur == &(list->postTail))
+        {
+            printreo();
+        }
+        else
+        {
+            printo();
+        }
         while (1)
         {
             readK();
-            if ((!(cur->prev == &(list->preHead) && cur->next == &(list->postTail))) && (k == 300 || k == 400))
+            if ((!(cur->prev == &(list->preHead) && cur == &(list->postTail))) && (k == 300 || k == 400))
             {
                 if (cur->prev == &(list->preHead))
                 {
@@ -1018,7 +1018,7 @@ int navigationmenu(linkedList *list)
                         break;
                     }
                 }
-                else if (cur->next == &(list->postTail))
+                else if (cur == &(list->postTail))
                 {
                     if (k == 400)
                     {
@@ -1050,7 +1050,7 @@ int navigationmenu(linkedList *list)
                 cur = cur->prev;
                 break;
             }
-            else if (k == 'd')
+            else if ((cur != &(list->postTail)) && (k == 'd'))
             {
                 cur = cur->prev;
                 deleteDNode(list, cur->next);
@@ -1074,7 +1074,6 @@ int navigationmenu(linkedList *list)
                         cur = list->preHead.next;
                         break;
                     }
-                    
                 }
                 else
                 {
@@ -1106,7 +1105,7 @@ void printleo()
 void printreo()
 {
     printf("============================================================\n");
-    printf("← = move to left  i = insert here  d = delete this\nb = back to previous menu  q = quit program\n");
+    printf("← = move to left  i = insert here\nb = back to previous menu  q = quit program\n");
 }
 
 void printo()
@@ -1131,7 +1130,7 @@ void displayDListWithCursor(linkedList *list, LNode *cur)
         cursoroffset += printf("%d<->", ((DNode *)(dcurrent))->data);
         dcurrent = dcurrent->next;
     }
-    if (dcurrent==&(list->postTail))
+    if (!(dcurrent == cur))
     {
         printf("NULL\ntf you had given as cur parameter huh! -_-\n");
         return;
