@@ -658,11 +658,21 @@ void freeDList(linkedList **listadd)
 
 int getInput(const char *string)
 {
+    int c;
     int input;
     disableRawMode();
     printf("%s", string);
-    scanf("%d", &input);
-    getchar();
+    while (scanf("%d", &input) != 1)
+    {
+        while ((c=getchar())!='\n' && c != EOF);
+        printf("Invalid Input! Try again.\n");
+        fflush(stdout);
+        timer(10);
+        clearLine();
+        clearLine();
+        printf("%s", string);
+    }
+    while ((c=getchar())!='\n' && c != EOF);
     enableRawMode();
     return input;
 }
