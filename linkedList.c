@@ -78,9 +78,9 @@ int dinsertBeforeKey(linkedList *list, int d, int key);
 
 void ddeleteHead(linkedList *list);
 void ddeleteTail(linkedList *list);
-void ddeleteAtPos(linkedList *list, int pos);
-void ddeleteTheKey(linkedList *list, int key);
-void ddeleteAllKey(linkedList *list, int key);
+int ddeleteAtPos(linkedList *list, int pos);
+int ddeleteTheKey(linkedList *list, int key);
+int ddeleteAllKey(linkedList *list, int key);
 
 linkedList *s2d(Node *head);
 
@@ -88,8 +88,9 @@ void clearList(linkedList *list);
 void freeDList(linkedList **listadd);
 
 int printemptylistmenu(linkedList *list);
-int insertionmenu(linkedList *list);
 int navigationmenu(linkedList *list);
+int insertionmenu(linkedList *list);
+int deletionmenu(linkedList *list);
 
 int getInput(const char *);
 void printlnreo();
@@ -106,7 +107,7 @@ int main()
     appendDList(list, 10);
     // dinsertAtPos(list, 40, 2);
     // displayDList(list);
-    insertionmenu(list);
+    deletionmenu(list);
     return 0;
 }
 
@@ -571,27 +572,41 @@ void ddeleteTail(linkedList *list)
     }
 }
 
-void ddeleteAtPos(linkedList *list, int pos)
+int ddeleteAtPos(linkedList *list, int pos)
 {
     LNode *deadNode = dgetByPos(list, pos);
     if (deadNode)
+    {
         deleteDNode(list, deadNode);
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
-void ddeleteTheKey(linkedList *list, int key)
+int ddeleteTheKey(linkedList *list, int key)
 {
     LNode *deadNode = dgetByKey(list, key);
     if (deadNode)
+    {
         deleteDNode(list, deadNode);
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
-void ddeleteAllKey(linkedList *list, int key)
+int ddeleteAllKey(linkedList *list, int key)
 {
     LNode *cur;
     if (!(cur = dgetByKeyFromNode(list, key, list->preHead.next)))
     {
         printf("Key not found!\n");
-        return;
+        return 0;
     }
     LNode *deadNode;
     while (cur)
@@ -600,7 +615,7 @@ void ddeleteAllKey(linkedList *list, int key)
         cur = dgetByKeyFromNode(list, key, cur->next);
         deleteDNode(list, deadNode);
     }
-    printf("Deletion done.\n");
+    return 1;
 }
 
 linkedList *s2d(Node *head)
@@ -654,17 +669,18 @@ void clearLine()
 
 void clearList(linkedList *list)
 {
-    if (!(list))
+    if (!list)
     {
         return;
     }
     LNode *dcurrent = (list)->preHead.next;
-    LNode *next;
     while (dcurrent != &((list)->postTail))
     {
-        next = dcurrent->next;
-        free((DNode *)(dcurrent));
-        dcurrent = next;
+        dcurrent = dcurrent->next;
+        dcurrent->prev = dcurrent->prev->prev;
+        free((DNode *)dcurrent->prev->next);
+        dcurrent->prev->next = dcurrent;
+        --(list->length);
     }
 }
 
@@ -865,160 +881,172 @@ void invalidInput()
     clearLine();
 }
 
-// int deletionmenu(linkedList *list)
-// {
-//     int menu;
-//     while (1)
-//     {
-//         clearScreen();
-//         displayDList(list);
-//         printf("============================================================\n");
-//         printf("h = delete head node  t = insert tail node  p = delete node at given position\nko = delete node matching the given key (first occurence)\nka = delete node matching the given key (all occurences)\na = delete all nodes  f = delete list\nb = back to previous menu  q = quit program\n");
-//         while (1)
-//         {
-//             readK();
-//             if (k == 'h')
-//             {
-//                 dinsertAtHead(list, getInput("Enter Data:"));
-//                 if (list->length == 0)
-//                 {
-//                     menu = printemptylistmenu(list);
-//                     if (!menu)
-//                     {
-//                         return 0;
-//                     }
-//                     else if (menu == 5)
-//                     {
-//                         return 5;
-//                     }
-//                 }
-//                 break;
-//             }
-//             else if (k == 't')
-//             {
-//                 appendDList(list, getInput("Enter Data:"));
-//                 if (list->length == 0)
-//                 {
-//                     menu = printemptylistmenu(list);
-//                     if (!menu)
-//                     {
-//                         return 0;
-//                     }
-//                     else if (menu == 5)
-//                     {
-//                         return 5;
-//                     }
-//                 }
-//                 break;
-//             }
-//             else if (k == 'p')
-//             {
-//                 dinsertAtPos(list, getInput("Enter Data:"), getInput("Enter the position:"));
-//                 if (list->length == 0)
-//                 {
-//                     menu = printemptylistmenu(list);
-//                     if (!menu)
-//                     {
-//                         return 0;
-//                     }
-//                     else if (menu == 5)
-//                     {
-//                         return 5;
-//                     }
-//                 }
-//                 break;
-//             }
-//             else if (k == 'k')
-//             {
-//                 clearLine();
-//                 clearLine();
-//                 printf("============================================================\n");
-//                 printf("ko = delete the first occurence  kb = delete all the occurences\n");
-//                 int r = timeoutC(5);
-//                 if (r > 0)
-//                 {
-//                     readK();
-//                     if (k == 'a')
-//                     {
-//                         dinsertAfterKey(list, getInput("Enter Data:"), getInput("Enter Key:"));
-//                         if (list->length == 0)
-//                         {
-//                             menu = printemptylistmenu(list);
-//                             if (!menu)
-//                             {
-//                                 return 0;
-//                             }
-//                             else if (menu == 5)
-//                             {
-//                                 return 5;
-//                             }
-//                         }
-//                         break;
-//                     }
-//                     else if (k == 'b')
-//                     {
-//                         dinsertBeforeKey(list, getInput("Enter Data:"), getInput("Enter Key:"));
-//                         if (list->length == 0)
-//                         {
-//                             menu = printemptylistmenu(list);
-//                             if (!menu)
-//                             {
-//                                 return 0;
-//                             }
-//                             else if (menu == 5)
-//                             {
-//                                 return 5;
-//                             }
-//                         }
-//                         break;
-//                     }
-//                 }
-//                 else if (r == 0)
-//                 {
-//                     clearLine();
-//                     clearLine();
-//                     printf("============================================================\n");
-//                     printf("h = delete head node  t = insert tail node  p = delete node at given position\nko = delete node matching the given key (first occurence)\nka = delete node matching the given key (all occurences)\na = delete all nodes  f = delete list\nb = back to previous menu  q = quit program\n");
-//                 }
-//                 else
-//                 {
-//                     exit(1);
-//                 }
-//             }
-//             else if (k == 'a')
-//             {
-//                 clearList(list);
-//                 menu = printemptylistmenu(list);
-//                 if (!menu)
-//                 {
-//                     return 0;
-//                 }
-//                 else if (menu == 5)
-//                 {
-//                     return 5;
-//                 }
-//                 break;
-//             }
-//             else if (k == 'f')
-//             {
-//                 freeDList(&list);
-//                 return 5;
-//             }
-//             else if (k == 'b')
-//             {
-//                 return 1;
-//             }
-//             else if (k == 'q')
-//             {
-//                 return 0;
-//             }
-//             else
-//             {
-//                 invalidInput();
-//             }
-//         }
-//     }
-// }
+int deletionmenu(linkedList *list)
+{
+    int menu;
+    while (1)
+    {
+        clearScreen();
+        displayDList(list);
+        printf("============================================================\n");
+        printf("h = delete head node  t = insert tail node  p = delete node at given position\nko = delete node matching the given key (first occurence)\nka = delete node matching the given key (all occurences)\na = delete all nodes  f = delete list\nb = back to previous menu  q = quit program\n");
+        while (1)
+        {
+            readK();
+            if (k == 'h')
+            {
+                ddeleteHead(list);
+                if (list->length == 0)
+                {
+                    menu = printemptylistmenu(list);
+                    if (!menu)
+                    {
+                        return 0;
+                    }
+                    else if (menu == 5)
+                    {
+                        return 5;
+                    }
+                }
+                break;
+            }
+            else if (k == 't')
+            {
+                ddeleteTail(list);
+                if (list->length == 0)
+                {
+                    menu = printemptylistmenu(list);
+                    if (!menu)
+                    {
+                        return 0;
+                    }
+                    else if (menu == 5)
+                    {
+                        return 5;
+                    }
+                }
+                break;
+            }
+            else if (k == 'p')
+            {
+                if (!(ddeleteAtPos(list, getInput("Enter the position:"))))
+                {
+                    timer(15);
+                }
+                if (list->length == 0)
+                {
+                    menu = printemptylistmenu(list);
+                    if (!menu)
+                    {
+                        return 0;
+                    }
+                    else if (menu == 5)
+                    {
+                        return 5;
+                    }
+                }
+                break;
+            }
+            else if (k == 'k')
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    clearLine();
+                }
+                printf("============================================================\n");
+                printf("ko = delete the first occurence  kb = delete all the occurences\n");
+                int r = timeoutC(5);
+                if (r > 0)
+                {
+                    readK();
+                    if (k == 'o')
+                    {
+                        if (!(ddeleteTheKey(list, getInput("Enter Key:"))))
+                        {
+                            timer(15);
+                        }
+                        if (list->length == 0)
+                        {
+                            menu = printemptylistmenu(list);
+                            if (!menu)
+                            {
+                                return 0;
+                            }
+                            else if (menu == 5)
+                            {
+                                return 5;
+                            }
+                        }
+                        break;
+                    }
+                    else if (k == 'a')
+                    {
+                        if (!(ddeleteAllKey(list, getInput("Enter Key:"))))
+                        {
+                            timer(15);
+                        }
+                        if (list->length == 0)
+                        {
+                            menu = printemptylistmenu(list);
+                            if (!menu)
+                            {
+                                return 0;
+                            }
+                            else if (menu == 5)
+                            {
+                                return 5;
+                            }
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else if (r == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    exit(1);
+                }
+            }
+            else if (k == 'a')
+            {
+                clearList(list);
+                menu = printemptylistmenu(list);
+                if (!menu)
+                {
+                    return 0;
+                }
+                else if (menu == 5)
+                {
+                    return 5;
+                }
+                break;
+            }
+            else if (k == 'f')
+            {
+                freeDList(&list);
+                return 5;
+            }
+            else if (k == 'b')
+            {
+                return 1;
+            }
+            else if (k == 'q')
+            {
+                return 0;
+            }
+            else
+            {
+                invalidInput();
+            }
+        }
+    }
+}
 
 int navigationmenu(linkedList *list)
 {
