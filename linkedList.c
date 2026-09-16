@@ -917,7 +917,7 @@ int deletionmenu(linkedList *list)
         clearScreen();
         displayDList(list);
         printf("============================================================\n");
-        printf("h = delete head node  t = insert tail node  p = delete node at given position\nko = delete node matching the given key (first occurence)\nka = delete node matching the given key (all occurences)\na = delete all nodes  f = delete list\nb = back to previous menu  q = quit program\n");
+        printf("h = delete head node  t = delete tail node  p = delete node at given position\nko = delete node matching the given key (first occurence)\nka = delete node matching the given key (all occurences)\na = delete all nodes  f = delete list\nb = back to previous menu  q = quit program\n");
         while (1)
         {
             readK();
