@@ -1300,9 +1300,7 @@ Although the project is contained in a small number of files, terminal input and
 
 # License
 
-No license is currently included in the repository.
-
-If this project is intended to be shared or reused by others, consider adding an appropriate open-source license.
+No license file is currently included in this repository. All rights are reserved by the author unless a license is added.
 
 ---
 
