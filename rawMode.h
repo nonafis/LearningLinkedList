@@ -86,7 +86,7 @@ static void enableRawMode()
 }
 static char c = '\0';
 static int k = '\0';
-static int arrowkeyinterpreter(char c)
+static int c2k(char c)
 {
     if (c == '\x1b')
     {

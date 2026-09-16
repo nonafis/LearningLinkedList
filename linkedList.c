@@ -87,7 +87,8 @@ linkedList *s2d(Node *head);
 void clearList(linkedList *list);
 void freeDList(linkedList **listadd);
 
-int printemptylistmenu(linkedList *list);
+int emptylistmenu(linkedList *list);
+int nonemptylistmenu(linkedList *list);
 int navigationmenu(linkedList *list);
 int insertionmenu(linkedList *list);
 int deletionmenu(linkedList *list);
@@ -102,12 +103,46 @@ void invalidInput();
 int main()
 {
     linkedList *list;
+    int menu = -5;
     enableRawMode();
-    list = createDList();
-    appendDList(list, 10);
-    // dinsertAtPos(list, 40, 2);
-    // displayDList(list);
-    deletionmenu(list);
+    while (menu)
+    {
+        clearScreen();
+        printf("========================Linked List========================\n");
+        printf("No list to see :/\n");
+        printf("============================================================\n");
+        printf("c = create list  q = quit program\n");
+        readK();
+        if (k == 'c')
+        {
+            list = createDList();
+            menu = 1;
+            while (menu == 1)
+            {
+                if (list->length == 0)
+                {
+                    menu = emptylistmenu(list);
+                }
+                else
+                {
+                    menu = nonemptylistmenu(list);
+                }
+            }
+            if (menu == -5)
+            {
+                freeDList(&list);
+            }
+        }
+        else if (k == 'q')
+        {
+            menu = 0;
+        }
+        else
+        {
+            invalidInput();
+        }
+    }
+
     return 0;
 }
 
@@ -714,40 +749,7 @@ int getInput(const char *string)
     return input;
 }
 
-// menu 0 = home menu (no list menu) {option c = menu 1, option q =return}
-// menu 11=empty list menu {option a = menu 12, option f = menu 0, option q =return}
-// menu 12=non empty list menu {option n = menu 121, option i = menu 122, option d = menu 123, option f = menu 0, option q = return}
-// menu 121= navigation menu {option </>/i,d = menu 121, option b=menu 1}
-// menu 31 = cur at left most menu
-// menu 32 = cur at middle menu
-// menu 33 = cur at right most menu
-// menu 341 = menu 11
-// menu 122= insertion menu {option h/t/p/ka/kb = menu 122, option b = menu 1}
-// menu 123= deletion menu {option h/t/p/ko/ka = menu 123, option b = menu 1}
-
-// void printMenu(int menu)
-// {
-//     switch (menu)
-//     {
-//     case 0:
-//         printNoListMenu();
-//         break;
-//     case 11:
-
-//     default:
-//         break;
-//     }
-// }
-
-// void printnolistmenu()
-// {
-//     printf("========================Linked List========================\n");
-//     printf("No list to see :/\n");
-//     printf("============================================================\n");
-//     printf("c = create list  q = quit program\n");
-// }
-
-int printemptylistmenu(linkedList *list)
+int emptylistmenu(linkedList *list)
 {
     clearScreen();
     displayDList(list);
@@ -762,8 +764,7 @@ int printemptylistmenu(linkedList *list)
         }
         else if (k == 'f')
         {
-            freeDList(&list);
-            return 5;
+            return -5;
         }
         else if (k == 'a')
         {
@@ -777,14 +778,41 @@ int printemptylistmenu(linkedList *list)
     }
 }
 
-// int print12menu(linkedList *list)
-// {
-//     clearScreen();
-//     displayDList(list);
-//     printf("============================================================\n");
-//     printf("n = navigate through the list  i = insert node  d = delete node\nf = delete list   q = quit program\n");
-//     // more to come
-// }
+int nonemptylistmenu(linkedList *list)
+{
+    clearScreen();
+    displayDList(list);
+    printf("============================================================\n");
+    printf("n = navigate through the list  i = insert node  d = delete node\nf = delete list   q = quit program\n");
+    while (1)
+    {
+        readK();
+        if (k == 'n')
+        {
+            return navigationmenu(list);
+        }
+        else if (k == 'i')
+        {
+            return insertionmenu(list);
+        }
+        else if (k == 'd')
+        {
+            return deletionmenu(list);
+        }
+        else if (k == 'f')
+        {
+            return -5;
+        }
+        else if (k == 'q')
+        {
+            return 0;
+        }
+        else
+        {
+            invalidInput();
+        }
+    }
+}
 
 int insertionmenu(linkedList *list)
 {
@@ -898,14 +926,10 @@ int deletionmenu(linkedList *list)
                 ddeleteHead(list);
                 if (list->length == 0)
                 {
-                    menu = printemptylistmenu(list);
-                    if (!menu)
+                    menu = emptylistmenu(list);
+                    if (menu <= 0)
                     {
-                        return 0;
-                    }
-                    else if (menu == 5)
-                    {
-                        return 5;
+                        return menu;
                     }
                 }
                 break;
@@ -915,14 +939,10 @@ int deletionmenu(linkedList *list)
                 ddeleteTail(list);
                 if (list->length == 0)
                 {
-                    menu = printemptylistmenu(list);
-                    if (!menu)
+                    menu = emptylistmenu(list);
+                    if (menu <= 0)
                     {
-                        return 0;
-                    }
-                    else if (menu == 5)
-                    {
-                        return 5;
+                        return menu;
                     }
                 }
                 break;
@@ -935,14 +955,10 @@ int deletionmenu(linkedList *list)
                 }
                 if (list->length == 0)
                 {
-                    menu = printemptylistmenu(list);
-                    if (!menu)
+                    menu = emptylistmenu(list);
+                    if (menu <= 0)
                     {
-                        return 0;
-                    }
-                    else if (menu == 5)
-                    {
-                        return 5;
+                        return menu;
                     }
                 }
                 break;
@@ -954,7 +970,7 @@ int deletionmenu(linkedList *list)
                     clearLine();
                 }
                 printf("============================================================\n");
-                printf("ko = delete the first occurence  kb = delete all the occurences\n");
+                printf("ko = delete the first occurence  ka = delete all the occurences\n");
                 int r = timeoutC(5);
                 if (r > 0)
                 {
@@ -967,14 +983,10 @@ int deletionmenu(linkedList *list)
                         }
                         if (list->length == 0)
                         {
-                            menu = printemptylistmenu(list);
-                            if (!menu)
+                            menu = emptylistmenu(list);
+                            if (menu <= 0)
                             {
-                                return 0;
-                            }
-                            else if (menu == 5)
-                            {
-                                return 5;
+                                return menu;
                             }
                         }
                         break;
@@ -987,14 +999,10 @@ int deletionmenu(linkedList *list)
                         }
                         if (list->length == 0)
                         {
-                            menu = printemptylistmenu(list);
-                            if (!menu)
+                            menu = emptylistmenu(list);
+                            if (menu <= 0)
                             {
-                                return 0;
-                            }
-                            else if (menu == 5)
-                            {
-                                return 5;
+                                return menu;
                             }
                         }
                         break;
@@ -1016,21 +1024,16 @@ int deletionmenu(linkedList *list)
             else if (k == 'a')
             {
                 clearList(list);
-                menu = printemptylistmenu(list);
-                if (!menu)
+                menu = emptylistmenu(list);
+                if (menu <= 0)
                 {
-                    return 0;
-                }
-                else if (menu == 5)
-                {
-                    return 5;
+                    return menu;
                 }
                 break;
             }
             else if (k == 'f')
             {
-                freeDList(&list);
-                return 5;
+                return -5;
             }
             else if (k == 'b')
             {
@@ -1131,14 +1134,10 @@ int navigationmenu(linkedList *list)
                 }
                 if (list->length == 0)
                 {
-                    menu = printemptylistmenu(list);
-                    if (!menu)
+                    menu = emptylistmenu(list);
+                    if (menu <= 0)
                     {
-                        return 0;
-                    }
-                    else if (menu == 5)
-                    {
-                        return 5;
+                        return menu;
                     }
                     else if (menu == 1)
                     {
