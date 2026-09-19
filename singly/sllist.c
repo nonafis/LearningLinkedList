@@ -7,7 +7,7 @@ SNode *createSNode(int d)
     SNode *newSNode = malloc(sizeof(SNode));
     if (newSNode == NULL)
     {
-        printf("SNode creation failed. Memory Allocation Unsuccessful.\n");
+        printf("SNode creation failed. Memory Allocation Unsuccessful.\r\n");
         exit(1);
     }
     else
@@ -23,7 +23,7 @@ void printSNode(SNode *head)
     SNode *current = head;
     if (current == NULL)
     {
-        printf("NULL\n");
+        printf("NULL\r\n");
     }
     else
     {
@@ -32,7 +32,7 @@ void printSNode(SNode *head)
             printf("%d->", current->data);
             current = current->next;
         }
-        printf("%d->NULL\n", current->data);
+        printf("%d->NULL\r\n", current->data);
     }
 }
 
@@ -105,7 +105,7 @@ SNode *getPriorToKey(SNode *head, int key)
 {
     if (head == NULL)
         return NULL;
-    if (head->data == key)
+    if (head->next == NULL)
         return NULL;
     SNode *current = head;
     while ((current->next != NULL) && ((current->next->data) != key))
@@ -146,17 +146,17 @@ void appendSNode(SNode **headadd, int d)
     insertSNode(headadd, tail, createSNode(d));
 }
 
-void insert_at_head(SNode **headadd, int d)
+void sinsertAtHead(SNode **headadd, int d)
 {
     insertSNode(headadd, NULL, createSNode(d));
 }
 
-void insert_at_pos(SNode **headadd, int d, int pos)
+int sinsertAtPos(SNode **headadd, int d, int pos)
 {
-    if (pos < 0)
+    if (pos < 0)  //if the pos is >= length of the list, the node silently gets appended not errored
     {
-        printf("Invalid position! Position can't be negative.\n");
-        return;
+        printf("Invalid position! Position can't be negative.\r\n");
+        return 0;
     }
     if (*headadd == NULL || pos == 0)
     {
@@ -167,122 +167,141 @@ void insert_at_pos(SNode **headadd, int d, int pos)
         SNode *precederSNode = getByPos(*headadd, pos - 1);
         insertSNode(headadd, precederSNode, createSNode(d));
     }
+    return 1;
 }
 
-void insert_after_key(SNode **headadd, int d, int key)
+int sinsertAfterKey(SNode **headadd, int d, int key)
 {
     if (*headadd == NULL)
     {
-        printf("Insertion using key cannot be done in an empty list.\n");
+        printf("Insertion using key cannot be done in an empty list.\r\n");
+        return 0;
     }
     else
     {
         SNode *keySNode = getByKey(*headadd, key);
         if ((keySNode->next == NULL) && (keySNode->data != key))
         {
-            printf("Key not found!\n");
+            printf("Key not found!\r\n");
+            return 0;
         }
         else
         {
             insertSNode(headadd, keySNode, createSNode(d));
+            return 1;
         }
     }
 }
 
-void insert_before_key(SNode **headadd, int d, int key)
+int sinsertBeforeKey(SNode **headadd, int d, int key)
 {
     if (*headadd == NULL)
     {
-        printf("Insertion using key cannot be done in an empty list.\n");
-        return;
+        printf("Insertion using key cannot be done in an empty list.\r\n");
+        return 0;
     }
     SNode *priorToKey = getPriorToKey(*headadd, key);
-    if (priorToKey == NULL)
+    if (priorToKey == NULL) //can be rearranged? ig
     {
-        insert_at_head(headadd, d);
+        if (((*headadd)==NULL)||((*headadd)!=NULL&&(*headadd)->data==key))
+        {            
+            sinsertAtHead(headadd, d);
+            return 1;
+        }
+        else 
+        {
+            printf("Key not found!\r\n");
+            return 0;
+        }
     }
     else if (priorToKey->next == NULL)
     {
-        printf("Key not found!\n");
+        printf("Key not found!\r\n");
+        return 0;
     }
     else
     {
         insertSNode(headadd, priorToKey, createSNode(d));
+        return 1;
     }
 }
 
-void delete_at_head(SNode **headadd)
+int sdeleteAtHead(SNode **headadd)
 {
     if (deleteSNode(headadd, NULL))
     {
-        printf("List is empty. Nothing to delete.\n");
+        printf("List is empty. Nothing to delete.\r\n");
+        return 0;
     }
+    return 1;
 }
 
-void delete_at_tail(SNode **headadd)
+int sdeleteAtTail(SNode **headadd)
 {
     SNode *priorToTail = getPriorToTail(*headadd);
     if (priorToTail == NULL)
     {
 
-        delete_at_head(headadd);
+        return sdeleteAtHead(headadd);
     }
     else
     {
         deleteSNode(headadd, priorToTail);
+        return 1;
     }
 }
 
-void delete_at_pos(SNode **headadd, int pos)
+int sdeleteAtPos(SNode **headadd, int pos)
 {
     if (pos < 0)
     {
-        printf("Invalid position! Position can't be negative.\n");
-        return;
+        printf("Invalid position! Position can't be negative.\r\n");
+        return 0;
     }
     if (pos == 0)
     {
-        delete_at_head(headadd);
-        return;
+        return sdeleteAtHead(headadd);
     }
     SNode *precederSNode = getByPos(*headadd, pos - 1);
     if (precederSNode == NULL)
     {
-        printf("List is empty. Nothing to delele!\n");
-        return;
+        printf("List is empty. Nothing to delele!\r\n");
+        return 0;
     }
     else if (precederSNode->next == NULL)
     {
-        printf("Invalid Position! Position is out of range.\n");
-        return;
+        printf("Invalid Position! Position is out of range.\r\n");
+        return 0;
     }
     deleteSNode(headadd, precederSNode);
+    return 1;
 }
 
-void delete_the_key(SNode **headadd, int key)
+int sdeleteTheKey(SNode **headadd, int key)
 {
-
     SNode *priorToKey = getPriorToKey(*headadd, key);
-    if (priorToKey == NULL)
+    if (((*headadd)==NULL)||((*headadd)!=NULL&&(*headadd)->data==key))
     {
-        delete_at_head(headadd);
+        return sdeleteAtHead(headadd);
     }
     else if (priorToKey->next == NULL)
     {
-        printf("Key not found!\n");
+        printf("Key not found!\r\n");
+        return 0;
     }
     else
     {
         deleteSNode(headadd, priorToKey);
+        return 1;
     }
 }
 
-void delete_all_key(SNode **headadd, int key)
+void sdeleteAllKey(SNode **headadd, int key)
 {
     SNode *priorToKey = getPriorToKey(*headadd, key);
-    while (priorToKey == NULL)
+    while ((((*headadd)==NULL)||((*headadd)!=NULL&&(*headadd)->data==key)))
     {
-        delete_at_head(headadd);
+        sdeleteAtHead(headadd);
         if (*headadd == NULL)
             return;
         priorToKey = getPriorToKey(*headadd, key);
@@ -294,7 +313,7 @@ void delete_all_key(SNode **headadd, int key)
     }
 }
 
-void freeList(SNode **headadd)
+void freeSNode(SNode **headadd)
 {
     SNode *current = *headadd;
     SNode *next;

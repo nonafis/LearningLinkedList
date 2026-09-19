@@ -10,7 +10,7 @@ else
     RM = rm -f
     FIX_PATH = $1
     EXEC = linkedList
-    RUN = .\$(EXEC)
+    RUN = ./$(EXEC)
 endif
 
 SRCS := linkedList.c cli.c doubly/dllist.c singly/sllist.c terminal/rawMode.c terminal/timer.c terminal/terminalcontrol.c

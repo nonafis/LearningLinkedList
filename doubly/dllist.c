@@ -8,7 +8,7 @@ DNode *createDNode(int d)
     DNode *newNode = malloc(sizeof(DNode));
     if (!newNode)
     {
-        printf("Node creation failed. Memory Allocation Unsuccessful.\n");
+        printf("Node creation failed. Memory Allocation Unsuccessful.\r\n");
         exit(1);
     }
     else
@@ -24,7 +24,7 @@ linkedList *createDList()
     linkedList *newList = malloc(sizeof(linkedList));
     if (!newList)
     {
-        printf("Allocation failed!\n");
+        printf("Allocation failed!\r\n");
         exit(1);
     }
     initDList(newList);
@@ -44,13 +44,13 @@ LNode *dgetByPos(linkedList *list, int pos)
 {
     if (pos < 0)
     {
-        printf("Position can't be negative.\n");
+        printf("Position can't be negative.\r\n");
         fflush(stdout);
         return NULL;
     }
     if (pos >= list->length)
     {
-        printf("Position out of range.\n");
+        printf("Position out of range.\r\n");
         fflush(stdout);
         return NULL;
     }
@@ -66,7 +66,7 @@ LNode *dgetByKey(linkedList *list, int key)
 {
     LNode *keyNode = dgetByKeyFromNode(list, key, list->preHead.next);
     if (!keyNode)
-        printf("Key not found.\n");
+        printf("Key not found.\r\n");
     return keyNode;
 }
 
@@ -205,7 +205,7 @@ int ddeleteAllKey(linkedList *list, int key)
     LNode *cur;
     if (!(cur = dgetByKeyFromNode(list, key, list->preHead.next)))
     {
-        printf("Key not found!\n");
+        printf("Key not found!\r\n");
         return 0;
     }
     LNode *deadNode;
@@ -220,20 +220,20 @@ int ddeleteAllKey(linkedList *list, int key)
 
 void displayDList(linkedList *list)
 {
-    printf("========================Linked List========================\n");
+    printf("========================Linked List========================\r\r\n");
     LNode *dcurrent = list->preHead.next;
     while ((dcurrent != &(list->postTail)))
     {
         printf("%d<->", ((DNode *)(dcurrent))->data);
         dcurrent = dcurrent->next;
     }
-    printf("NULL\n");
+    printf("NULL\r\n");
 }
 
 void displayDListWithCursor(linkedList *list, LNode *cur)
 {
     int cursoroffset = 0;
-    printf("========================Linked List========================\n");
+    printf("========================Linked List========================\r\n");
     LNode *dcurrent = list->preHead.next;
     while (dcurrent != &(list->postTail) && (dcurrent != cur))
     {
@@ -242,7 +242,7 @@ void displayDListWithCursor(linkedList *list, LNode *cur)
     }
     if (!(dcurrent == cur))
     {
-        printf("NULL\ntf you had given as cur parameter huh! -_-\n");
+        printf("NULL\r\ntf you had given as cur parameter huh! -_-\r\n");
         return;
     }
     while (dcurrent != &(list->postTail))
@@ -250,12 +250,12 @@ void displayDListWithCursor(linkedList *list, LNode *cur)
         printf("%d<->", ((DNode *)(dcurrent))->data);
         dcurrent = dcurrent->next;
     }
-    printf("NULL\n");
+    printf("NULL\r\n");
     for (int i = 0; i < cursoroffset; i++)
     {
         printf(" ");
     }
-    printf("^\n");
+    printf("^\r\n");
 }
 
 void clearList(linkedList *list)

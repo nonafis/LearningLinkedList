@@ -42,7 +42,7 @@ int emptylistmenu(linkedList *list)
     clearScreen();
     displayDList(list);
     printf("============================================================\n");
-    printf("a = add node  f = delete list   q = quit program\n");
+    printf("a = add first node  f = delete list   q = quit program\n");
     while (1)
     {
         readK();

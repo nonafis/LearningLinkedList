@@ -20,14 +20,14 @@ SNode *getPriorToKey(SNode *head, int key);
 
 void appendSNode(SNode **headadd, int d);
 void sinsertAtHead(SNode **headadd, int d);
-void sinsertAtPos(SNode **headadd, int d, int pos);
-void sinsertAfterKey(SNode **headadd, int d, int key);
-void sinsertBeforeKey(SNode **headadd, int d, int key);
+int sinsertAtPos(SNode **headadd, int d, int pos);
+int sinsertAfterKey(SNode **headadd, int d, int key);
+int sinsertBeforeKey(SNode **headadd, int d, int key);
 
-void sdeleteAtHead(SNode **headadd);
-void sdeleteAtTail(SNode **headadd);
-void sdeleteAtPos(SNode **headadd, int pos);
-void sdeleteTheKey(SNode **headadd, int key);
+int sdeleteAtHead(SNode **headadd);
+int sdeleteAtTail(SNode **headadd);
+int sdeleteAtPos(SNode **headadd, int pos);
+int sdeleteTheKey(SNode **headadd, int key);
 void sdeleteAllKey(SNode **headadd, int key);
 
 void freeSNode(SNode **headadd);
