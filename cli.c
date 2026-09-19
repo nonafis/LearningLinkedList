@@ -14,16 +14,16 @@ int getInput(const char *string)
     printf("%s", string);
     while (scanf("%d", &input) != 1)
     {
-        while ((c = getchar()) != '\n' && c != EOF)
+        while ((c = getchar()) != '\r\n' && c != EOF)
             ;
-        printf("Invalid Input! Try again.\n");
+        printf("Invalid Input! Try again.\r\n");
         fflush(stdout);
         timer(10);
         clearLine();
         clearLine();
         printf("%s", string);
     }
-    while ((c = getchar()) != '\n' && c != EOF)
+    while ((c = getchar()) != '\r\n' && c != EOF)
         ;
     enableRawMode();
     return input;
@@ -31,7 +31,7 @@ int getInput(const char *string)
 
 void invalidInput()
 {
-    printf("Invalid input!\n");
+    printf("Invalid input!\r\n");
     fflush(stdout);
     timer(2);
     clearLine();
@@ -41,8 +41,8 @@ int emptylistmenu(linkedList *list)
 {
     clearScreen();
     displayDList(list);
-    printf("============================================================\n");
-    printf("a = add first node  f = delete list   q = quit program\n");
+    printf("============================================================\r\n");
+    printf("a = add first node  f = delete list   q = quit program\r\n");
     while (1)
     {
         readK();
@@ -70,8 +70,8 @@ int nonemptylistmenu(linkedList *list)
 {
     clearScreen();
     displayDList(list);
-    printf("============================================================\n");
-    printf("n = navigate through the list  i = insert node  d = delete node\nf = delete list   q = quit program\n");
+    printf("============================================================\r\n");
+    printf("n = navigate through the list  i = insert node  d = delete node\r\nf = delete list   q = quit program\r\n");
     while (1)
     {
         readK();
@@ -108,8 +108,8 @@ int insertionmenu(linkedList *list)
     {
         clearScreen();
         displayDList(list);
-        printf("============================================================\n");
-        printf("h = insert at head  t = insert at tail  p = insert at given position\nka = insert after given key  kb = insert before key\nb = back to previous menu  q = quit program\n");
+        printf("============================================================\r\n");
+        printf("h = insert at head  t = insert at tail  p = insert at given position\r\nka = insert after given key  kb = insert before key\r\nb = back to previous menu  q = quit program\r\n");
         while (1)
         {
             readK();
@@ -137,8 +137,8 @@ int insertionmenu(linkedList *list)
                 {
                     clearLine();
                 }
-                printf("============================================================\n");
-                printf("ka = insert after given key  kb = insert before key\n");
+                printf("============================================================\r\n");
+                printf("ka = insert after given key  kb = insert before key\r\n");
                 int r = timeoutC(5);
                 if (r > 0)
                 {
@@ -196,8 +196,8 @@ int deletionmenu(linkedList *list)
     {
         clearScreen();
         displayDList(list);
-        printf("============================================================\n");
-        printf("h = delete head node  t = delete tail node  p = delete node at given position\nko = delete node matching the given key (first occurence)\nka = delete node matching the given key (all occurences)\na = delete all nodes  f = delete list\nb = back to previous menu  q = quit program\n");
+        printf("============================================================\r\n");
+        printf("h = delete head node  t = delete tail node  p = delete node at given position\r\nko = delete node matching the given key (first occurence)\r\nka = delete node matching the given key (all occurences)\r\na = delete all nodes  f = delete list\r\nb = back to previous menu  q = quit program\r\n");
         while (1)
         {
             readK();
@@ -249,8 +249,8 @@ int deletionmenu(linkedList *list)
                 {
                     clearLine();
                 }
-                printf("============================================================\n");
-                printf("ko = delete the first occurence  ka = delete all the occurences\n");
+                printf("============================================================\r\n");
+                printf("ko = delete the first occurence  ka = delete all the occurences\r\n");
                 int r = timeoutC(5);
                 if (r > 0)
                 {
@@ -448,24 +448,24 @@ int navigationmenu(linkedList *list)
 
 void printleo()
 {
-    printf("============================================================\n");
-    printf("\xe2\x86\x92 = move to right  i = insert here  d = delete this\nb = back to previous menu  q = quit program\n");
+    printf("============================================================\r\n");
+    printf("\xe2\x86\x92 = move to right  i = insert here  d = delete this\r\nb = back to previous menu  q = quit program\r\n");
 }
 
 void printreo()
 {
-    printf("============================================================\n");
-    printf("← = move to left  i = insert here\nb = back to previous menu  q = quit program\n");
+    printf("============================================================\r\n");
+    printf("← = move to left  i = insert here\r\nb = back to previous menu  q = quit program\r\n");
 }
 
 void printo()
 {
-    printf("============================================================\n");
-    printf("← = move to left  → = move to right  i = insert here  d = delete this\nb = back to previous menu  q = quit program\n");
+    printf("============================================================\r\n");
+    printf("← = move to left  → = move to right  i = insert here  d = delete this\r\nb = back to previous menu  q = quit program\r\n");
 }
 
 void printlnreo()
 {
-    printf("============================================================\n");
-    printf("i = insert here  d = delete this\nb = back to previous menu  q = quit program\n");
+    printf("============================================================\r\n");
+    printf("i = insert here  d = delete this\r\nb = back to previous menu  q = quit program\r\n");
 }
