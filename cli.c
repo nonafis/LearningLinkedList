@@ -14,7 +14,7 @@ int getInput(const char *string)
     printf("%s", string);
     while (scanf("%d", &input) != 1)
     {
-        while ((c = getchar()) != '\r\n' && c != EOF)
+        while ((c = getchar()) != '\n' && c != EOF)
             ;
         printf("Invalid Input! Try again.\r\n");
         fflush(stdout);
@@ -23,7 +23,7 @@ int getInput(const char *string)
         clearLine();
         printf("%s", string);
     }
-    while ((c = getchar()) != '\r\n' && c != EOF)
+    while ((c = getchar()) != '\n' && c != EOF)
         ;
     enableRawMode();
     return input;
