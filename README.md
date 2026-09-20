@@ -216,13 +216,13 @@ The list logic is separate from the UI, so `doubly/` and `singly/` can be reused
 
 ### Singly linked list (`singly/sllist.h`)
 
-A pointer-to-head API (`SNode **headadd`) so operations on the head can update the caller's pointer. Core functions include `createSNode`, `printSNode`, `insertSNode`, `deleteSNode` , `getTail`, `getByPos`, `getByKey`, `getPriorToTail`,  `getPriorToKey`, `freeSNode`. Other functions `sinsertAtHead`, `appendSNode`, `sinsertAtPos`, `sinsertAfterKey`, `sinsertBeforeKey`, `sdeleteAtHead`, `sdeleteAtTail`, `sdeleteAtPos`, `sdeleteTheKey` and `sdeleteAllKey`. (`insertSNode` expects `NULL` as the second argument (SNode *precedorNode) for head insertion).
-(`getByPos`, `getByKey` returns a pointer to `NULL` if a empty SList is passed to it).
-(`getPriorToTail` and `getPriorToKey` returns a pointer to `NULL` for a empty SList and single-node SList).
-(Return type of `deleteSNode` is `int`. It returns 0 when the deletion doesn't occurs(if the list passed was empty) and 1 on successful deletion).
-(`sinsertAtPos` returns 0 for negative `pos`, returns 1 on success. It appends the `newNode` at the end of the list silently if the `pos` passed was more equal or more than the length).
-(`sinsertAfterKey` and `sinsertBeforeKey` returns 0 if the list passed was empty or if the key was found, and returns 1 on successful insertion).
-(`sdeleteAtHead`, `sdeleteAtTail`, `sdeleteAtPos`, `sdeleteTheKey` returns `int` 1 on success and 0 on failure).
+A pointer-to-head API (`SNode **headadd`) so operations on the head can update the caller's pointer. Core functions include `createSNode`, `printSNode`, `insertSNode`, `deleteSNode` , `getTail`, `getByPos`, `getByKey`, `getPriorToTail`,  `getPriorToKey`, `freeSNode`. Other functions `sinsertAtHead`, `appendSNode`, `sinsertAtPos`, `sinsertAfterKey`, `sinsertBeforeKey`, `sdeleteAtHead`, `sdeleteAtTail`, `sdeleteAtPos`, `sdeleteTheKey` and `sdeleteAllKey`.<br>(`insertSNode` expects `NULL` as the second argument (SNode *precedorNode) for head insertion).<br>
+(`getByPos`, `getByKey` returns a pointer to `NULL` if a empty SList is passed to it).<br>
+(`getPriorToTail` and `getPriorToKey` returns a pointer to `NULL` for a empty SList and single-node SList).<br>
+(Return type of `deleteSNode` is `int`. It returns 0 when the deletion doesn't occurs(if the list passed was empty) and 1 on successful deletion).<br>
+(`sinsertAtPos` returns 0 for negative `pos`, returns 1 on success. It appends the `newNode` at the end of the list silently if the `pos` passed was more equal or more than the length).<br>
+(`sinsertAfterKey` and `sinsertBeforeKey` returns 0 if the list passed was empty or if the key was found, and returns 1 on successful insertion).<br>
+(`sdeleteAtHead`, `sdeleteAtTail`, `sdeleteAtPos`, `sdeleteTheKey` returns `int` 1 on success and 0 on failure).<br>
 ## Design notes
 
 - **Sentinel nodes.** The doubly linked list keeps `preHead` and `postTail` inside the list struct. Because those two nodes always exist, inserting at the head or tail and deleting the first or last node need no special cases for an empty list or a `NULL` neighbour.

@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 #include "rawMode.h"
 #include "terminalcontrol.h"
 #include "timer.h"
@@ -15,10 +14,10 @@ int main()
     while (menu)
     {
         clearScreen();
-        printf("========================Linked List========================\n");
-        printf("No list to see :/\n");
-        printf("============================================================\n");
-        printf("c = create list  q = quit program\n");
+        printf("========================Linked List========================\r\n");
+        printf("No list to see :/\r\n");
+        printf("============================================================\r\n");
+        printf("c = create list  q = quit program\r\n");
         readK();
         if (k == 'c')
         {
@@ -49,6 +48,6 @@ int main()
             invalidInput();
         }
     }
-
+    freeDList(&list);
     return 0;
 }

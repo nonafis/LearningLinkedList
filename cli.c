@@ -1,4 +1,4 @@
-#include<stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "dllist.h"
 #include "rawMode.h"
@@ -194,6 +194,14 @@ int deletionmenu(linkedList *list)
     int menu;
     while (1)
     {
+        if (list->length == 0)
+        {
+            menu = emptylistmenu(list);
+            if (menu <= 0)
+            {
+                return menu;
+            }
+        }
         clearScreen();
         displayDList(list);
         printf("============================================================\r\n");
@@ -204,27 +212,11 @@ int deletionmenu(linkedList *list)
             if (k == 'h')
             {
                 ddeleteHead(list);
-                if (list->length == 0)
-                {
-                    menu = emptylistmenu(list);
-                    if (menu <= 0)
-                    {
-                        return menu;
-                    }
-                }
                 break;
             }
             else if (k == 't')
             {
                 ddeleteTail(list);
-                if (list->length == 0)
-                {
-                    menu = emptylistmenu(list);
-                    if (menu <= 0)
-                    {
-                        return menu;
-                    }
-                }
                 break;
             }
             else if (k == 'p')
@@ -232,14 +224,6 @@ int deletionmenu(linkedList *list)
                 if (!(ddeleteAtPos(list, getInput("Enter the position:"))))
                 {
                     timer(15);
-                }
-                if (list->length == 0)
-                {
-                    menu = emptylistmenu(list);
-                    if (menu <= 0)
-                    {
-                        return menu;
-                    }
                 }
                 break;
             }
@@ -261,14 +245,6 @@ int deletionmenu(linkedList *list)
                         {
                             timer(15);
                         }
-                        if (list->length == 0)
-                        {
-                            menu = emptylistmenu(list);
-                            if (menu <= 0)
-                            {
-                                return menu;
-                            }
-                        }
                         break;
                     }
                     else if (k == 'a')
@@ -276,14 +252,6 @@ int deletionmenu(linkedList *list)
                         if (!(ddeleteAllKey(list, getInput("Enter Key:"))))
                         {
                             timer(15);
-                        }
-                        if (list->length == 0)
-                        {
-                            menu = emptylistmenu(list);
-                            if (menu <= 0)
-                            {
-                                return menu;
-                            }
                         }
                         break;
                     }
@@ -304,11 +272,6 @@ int deletionmenu(linkedList *list)
             else if (k == 'a')
             {
                 clearList(list);
-                menu = emptylistmenu(list);
-                if (menu <= 0)
-                {
-                    return menu;
-                }
                 break;
             }
             else if (k == 'f')
