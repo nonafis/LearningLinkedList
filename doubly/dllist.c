@@ -302,7 +302,7 @@ void freeDList(linkedList **listadd)
 linkedList *s2d(SNode *head)
 {
     SNode *current = head;
-    linkedList *list = createDList();
+    linkedList *list = createList();
     while (current != NULL)
     {
         appendDList(list, current->data);
