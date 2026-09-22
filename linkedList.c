@@ -21,7 +21,7 @@ int main()
         readK();
         if (k == 'c')
         {
-            list = createDList();
+            list = createList();
             menu = 1;
             while (menu == 1)
             {

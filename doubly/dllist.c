@@ -19,7 +19,24 @@ DNode *createDNode(int d)
     }
 }
 
-linkedList *createDList()
+// MNode *createMNode(int d, LNode *nodeadd)
+// {
+//     MNode *newNode = malloc(sizeof(MNode));
+//     if (!newNode)
+//     {
+//         printf("Node creation failed. Memory Allocation Unsuccessful.\r\n");
+//         exit(1);
+//     }
+//     else
+//     {
+//         newNode->intData = d;
+//         newNode->addressData = nodeadd;
+//         newNode->link.prev = newNode->link.next = NULL;
+//         return newNode;
+//     }
+// }
+
+linkedList *createList()
 {
     linkedList *newList = malloc(sizeof(linkedList));
     if (!newList)

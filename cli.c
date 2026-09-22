@@ -302,22 +302,7 @@ int navigationmenu(linkedList *list)
     {
         clearScreen();
         displayDListWithCursor(list, cur);
-        if (cur->prev == &(list->preHead) && cur->next == &(list->postTail))
-        {
-            printlnreo();
-        }
-        else if (cur->prev == &(list->preHead))
-        {
-            printleo();
-        }
-        else if (cur == &(list->postTail))
-        {
-            printreo();
-        }
-        else
-        {
-            printo();
-        }
+        printnavkeyhints(cur->prev == &(list->preHead), cur == &(list->postTail), "move to left", "move to right", "insert here", "delete this");
         while (1)
         {
             readK();
@@ -409,26 +394,151 @@ int navigationmenu(linkedList *list)
     }
 }
 
-void printleo()
+void printnavkeyhints(int leftedgeboolean, int rightedgeboolean, const char *leftarrowhintmessage, const char *rightarrowhintmessage, const char *ihintmessage, const char *dhintmessage)
 {
     printf("============================================================\r\n");
-    printf("\xe2\x86\x92 = move to right  i = insert here  d = delete this\r\nb = back to previous menu  q = quit program\r\n");
+    if ((leftedgeboolean) && (rightedgeboolean))
+    {
+        printf("i = %s  d = %s\r\nb = back to previous menu  q = quit program\r\n", ihintmessage, dhintmessage);
+    }
+    else if (leftedgeboolean)
+    {
+        printf("→ = %s  i = %s  d = %s\r\nb = back to previous menu  q = quit program\r\n", rightarrowhintmessage, ihintmessage, dhintmessage);
+    }
+    else if (rightedgeboolean)
+    {
+        printf("← = %s  i = %s  d = %s\r\nb = back to previous menu  q = quit program\r\n", leftarrowhintmessage, ihintmessage, dhintmessage);
+    }
+    else
+    {
+        printf("← = %s  → = %s  i = %s  d = %s\r\nb = back to previous menu  q = quit program\r\n", leftarrowhintmessage, rightarrowhintmessage, ihintmessage, dhintmessage);
+    }
 }
 
-void printreo()
-{
-    printf("============================================================\r\n");
-    printf("← = move to left  i = insert here\r\nb = back to previous menu  q = quit program\r\n");
-}
-
-void printo()
-{
-    printf("============================================================\r\n");
-    printf("← = move to left  → = move to right  i = insert here  d = delete this\r\nb = back to previous menu  q = quit program\r\n");
-}
-
-void printlnreo()
-{
-    printf("============================================================\r\n");
-    printf("i = insert here  d = delete this\r\nb = back to previous menu  q = quit program\r\n");
-}
+// int searchmenu(linkedList *list)
+// {
+//     linkedList *searchstoredlist = NULL;
+//     LNode *matchedNode, *dcurrent, *sllcur;
+//     int key, cursoroffset = 0, lastcurrelpos = 0;
+//     key = getInput("Search:");
+//     while (1)
+//     {
+//         matchedNode = dgetByKeyFromNode(list, key, list->preHead.next);
+//         if (!(matchedNode))
+//         {
+//             printf("No matching node.\r\n");
+//             timer(15);
+//             return 1;
+//         }
+//         freeDList(&searchstoredlist);
+//         searchstoredlist = createList();
+//         cursoroffset = 0;
+//         dcurrent = list->preHead.next;
+//         clearScreen();
+//         printf("========================Linked List========================\r\n");
+//         while (matchedNode != NULL)
+//         {
+//             while (dcurrent != matchedNode)
+//             {
+//                 cursoroffset += printf("%d<->", ((DNode *)(dcurrent))->data);
+//                 dcurrent = dcurrent->next;
+//             }
+//             insertDNode(searchstoredlist, searchstoredlist->postTail.prev, &(createMNode(cursoroffset, matchedNode))->link);
+//             cursoroffset += printf("[%d]<->", ((DNode *)(dcurrent))->data);
+//             dcurrent = dcurrent->next;
+//             matchedNode = dgetByKeyFromNode(list, key, matchedNode->next);
+//         }
+//         while (dcurrent != &(list->postTail))
+//         {
+//             printf("%d<->", ((DNode *)(dcurrent))->data);
+//             dcurrent = dcurrent->next;
+//         }
+//         printf("NULL\r\n");
+//         sllcur = searchstoredlist->preHead.next;
+//         for (int i = 0; (i < lastcurrelpos); i++)
+//         {
+//             sllcur = sllcur->next;
+//         }
+//         while (1)
+//         {
+//             for (int i = 0; i < (((MNode *)(sllcur))->intData) + 1; i++) //+1 for "["
+//             {
+//                 printf(" ");
+//             }
+//             printf("^\r\n");
+//             printnavkeyhints(((sllcur->prev) == &(searchstoredlist)->preHead), ((sllcur->next) == &(searchstoredlist)->postTail), "move to previous matching node", "move to next matching node", "insert around here", "delete this");
+//             readK();
+//             if (((sllcur->next) != &(searchstoredlist)->postTail) && (k == 400))
+//             {
+//                 sllcur = sllcur->next;
+//                 ++lastcurrelpos;
+//             }
+//             else if (((sllcur->prev) != &(searchstoredlist)->preHead) && (k == 300))
+//             {
+//                 sllcur = sllcur->prev;
+//                 --lastcurrelpos;
+//             }
+//             else if (k == 'i')
+//             {
+//                 for (int i = 0; i < 4 + 1; i++)
+//                 {
+//                     clearLine();
+//                 }
+//                 for (int i = 0; i < (((MNode *)(sllcur))->intData) + 1; i++) //+1 for "["
+//                 {
+//                     printf(" ");
+//                 }
+//                 printf("[%d]\r\n", ((DNode *)(((MNode *)(sllcur))->addressData))->data);
+//                 printf("b = insert before this matching node\r\n");
+//                 printf("a = insert after this matching node\r\n");
+//                 printf("c = cancel insertion\r\n");
+//                 while (1)
+//                 {
+//                     readK();
+//                     if (k == 'c')
+//                     {
+//                         break;
+//                     }
+//                     else if (k == 'b')
+//                     {
+//                         clearScreen();
+//                         insertDNode(list, ((MNode *)(sllcur))->addressData->prev, createDNode(getInput("Enter Data:")));
+//                         if (((DNode *)(((MNode *)(sllcur))->addressData->prev))->data == key)
+//                         {
+//                             ++lastcurrelpos;
+//                         }
+//                         break;
+//                     }
+//                     else if (k == 'a')
+//                     {
+//                         clearScreen();
+//                         insertDNode(list, ((MNode *)(sllcur))->addressData, createDNode(getInput("Enter Data:")));
+//                         break;
+//                     }
+//                     else
+//                     {
+//                         invalidInput();
+//                     }
+//                 }
+//                 break;
+//             }
+//             else if (k == 'd')
+//             {
+//                 deleteDNode(list, ((MNode *)(sllcur))->addressData);
+//                 if (lastcurrelpos > 0)
+//                 {
+//                     --lastcurrelpos;
+//                 }
+//                 break;
+//             }
+//             else
+//             {
+//                 invalidInput();
+//             }
+//             for (int i = 0; i < 4; i++)
+//             {
+//                 clearLine();
+//             }
+//         }
+//     }
+// }

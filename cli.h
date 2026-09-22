@@ -8,9 +8,6 @@ int insertionmenu(linkedList *list);
 int deletionmenu(linkedList *list);
 
 int getInput(const char *);
-void printlnreo();
-void printleo();
-void printreo();
-void printo();
+void printnavkeyhints(int leftedgeboolean, int rightedgeboolean, const char *leftarrowhintmessage, const char *rightarrowhintmessage, const char *ihintmessage, const char *dhintmessage);
 void invalidInput();
 #endif

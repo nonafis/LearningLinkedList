@@ -13,6 +13,13 @@ typedef struct DNode
     int data;
 } DNode;
 
+// typedef struct MNode
+// {
+//     LNode link;
+//     int intData;
+//     LNode *addressData;
+// } MNode;
+
 typedef struct linkedList
 {
     LNode preHead;
@@ -21,9 +28,10 @@ typedef struct linkedList
 } linkedList;
 
 DNode *createDNode(int d);
+// MNode *createMNode(int d, LNode *nodeadd);
 
 void initDList(linkedList *list);
-linkedList *createDList();
+linkedList *createList();
 void displayDList(linkedList *list);
 void displayDListWithCursor(linkedList *list, LNode *cur);
 
