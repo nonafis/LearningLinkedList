@@ -347,11 +347,11 @@ int navigationmenu(linkedList *list)
         while (1)
         {
             readK();
-            if ((!(cur->prev == &(list->preHead) && cur == &(list->postTail))) && (k == 300 || k == 400))
+            if ((!(cur->prev == &(list->preHead) && cur == &(list->postTail))) && (k == LEFT_ARROW_KEY || k == RIGHT_ARROW_KEY))
             {
                 if (cur->prev == &(list->preHead))
                 {
-                    if (k == 300)
+                    if (k == LEFT_ARROW_KEY)
                     {
                         invalidInput();
                     }
@@ -363,7 +363,7 @@ int navigationmenu(linkedList *list)
                 }
                 else if (cur == &(list->postTail))
                 {
-                    if (k == 400)
+                    if (k == RIGHT_ARROW_KEY)
                     {
                         invalidInput();
                     }
@@ -375,7 +375,7 @@ int navigationmenu(linkedList *list)
                 }
                 else
                 {
-                    if (k == 300)
+                    if (k == LEFT_ARROW_KEY)
                     {
                         cur = cur->prev;
                         break;
@@ -509,12 +509,12 @@ void printnavkeyhints(int leftedgeboolean, int rightedgeboolean, const char *lef
 //             printf("^\r\n");
 //             printnavkeyhints(((sllcur->prev) == &(searchstoredlist)->preHead), ((sllcur->next) == &(searchstoredlist)->postTail), "move to previous matching node", "move to next matching node", "insert around here", "delete this");
 //             readK();
-//             if (((sllcur->next) != &(searchstoredlist)->postTail) && (k == 400))
+//             if (((sllcur->next) != &(searchstoredlist)->postTail) && (k == RIGHT_ARROW_KEY))
 //             {
 //                 sllcur = sllcur->next;
 //                 ++lastcurrelpos;
 //             }
-//             else if (((sllcur->prev) != &(searchstoredlist)->preHead) && (k == 300))
+//             else if (((sllcur->prev) != &(searchstoredlist)->preHead) && (k == LEFT_ARROW_KEY))
 //             {
 //                 sllcur = sllcur->prev;
 //                 --lastcurrelpos;

@@ -23,11 +23,11 @@ static int c2k(int c)
         c = _getch();
         if (c == 75)
         {
-            return 300;
+            return LEFT_ARROW_KEY;
         }
         else if (c == 77)
         {
-            return 400;
+            return RIGHT_ARROW_KEY;
         }
         else
         {
@@ -97,11 +97,11 @@ static int c2k(char c)
                 return '\x1b';
             if (c == 'D')
             {
-                return 300;
+                return LEFT_ARROW_KEY;
             }
             else if (c == 'C')
             {
-                return 400;
+                return RIGHT_ARROW_KEY;
             }
             else
             {
