@@ -8,6 +8,8 @@ int insertionmenu(linkedList *list);
 int deletionmenu(linkedList *list);
 
 int getInput(const char *);
-void printnavkeyhints(int leftedgeboolean, int rightedgeboolean, const char *leftarrowhintmessage, const char *rightarrowhintmessage, const char *ihintmessage, const char *dhintmessage);
 void invalidInput();
+void displayDList(linkedList *list);
+void displayDListWithCursor(linkedList *list, LNode *cur);
+void printnavkeyhints(int leftedgeboolean, int rightedgeboolean, const char *leftarrowhintmessage, const char *rightarrowhintmessage, const char *ihintmessage, const char *dhintmessage);
 #endif

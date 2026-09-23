@@ -32,8 +32,6 @@ DNode *createDNode(int d);
 
 void initDList(linkedList *list);
 linkedList *createList();
-void displayDList(linkedList *list);
-void displayDListWithCursor(linkedList *list, LNode *cur);
 
 LNode *dgetByPos(linkedList *list, int pos);
 LNode *dgetByKeyFromNode(linkedList *list, int key, LNode *start);

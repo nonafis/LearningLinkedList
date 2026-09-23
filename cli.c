@@ -37,6 +37,47 @@ void invalidInput()
     clearLine();
 }
 
+
+void displayDList(linkedList *list)
+{
+    printf("========================Linked List========================\r\n");
+    LNode *dcurrent = list->preHead.next;
+    while ((dcurrent != &(list->postTail)))
+    {
+        printf("%d<->", ((DNode *)(dcurrent))->data);
+        dcurrent = dcurrent->next;
+    }
+    printf("NULL\r\n");
+}
+
+void displayDListWithCursor(linkedList *list, LNode *cur)
+{
+    int cursoroffset = 0;
+    printf("========================Linked List========================\r\n");
+    LNode *dcurrent = list->preHead.next;
+    while (dcurrent != &(list->postTail) && (dcurrent != cur))
+    {
+        cursoroffset += printf("%d<->", ((DNode *)(dcurrent))->data);
+        dcurrent = dcurrent->next;
+    }
+    if (!(dcurrent == cur))
+    {
+        printf("NULL\r\ntf you had given as cur parameter huh! -_-\r\n");
+        return;
+    }
+    while (dcurrent != &(list->postTail))
+    {
+        printf("%d<->", ((DNode *)(dcurrent))->data);
+        dcurrent = dcurrent->next;
+    }
+    printf("NULL\r\n");
+    for (int i = 0; i < cursoroffset; i++)
+    {
+        printf(" ");
+    }
+    printf("^\r\n");
+}
+
 int emptylistmenu(linkedList *list)
 {
     clearScreen();
@@ -397,9 +438,9 @@ int navigationmenu(linkedList *list)
 void printnavkeyhints(int leftedgeboolean, int rightedgeboolean, const char *leftarrowhintmessage, const char *rightarrowhintmessage, const char *ihintmessage, const char *dhintmessage)
 {
     printf("============================================================\r\n");
-    if ((leftedgeboolean) && (rightedgeboolean))
+    if ((leftedgeboolean) && (rightedgeboolean))  // when it is an empty list. navmenu cant reach this  
     {
-        printf("i = %s  d = %s\r\nb = back to previous menu  q = quit program\r\n", ihintmessage, dhintmessage);
+        printf("i = %s  d = %s  b = back to previous menu  q = quit program\r\n", ihintmessage, dhintmessage);
     }
     else if (leftedgeboolean)
     {
@@ -407,7 +448,7 @@ void printnavkeyhints(int leftedgeboolean, int rightedgeboolean, const char *lef
     }
     else if (rightedgeboolean)
     {
-        printf("← = %s  i = %s  d = %s\r\nb = back to previous menu  q = quit program\r\n", leftarrowhintmessage, ihintmessage, dhintmessage);
+        printf("← = %s  i = %s\r\nb = back to previous menu  q = quit program\r\n", leftarrowhintmessage, ihintmessage);
     }
     else
     {

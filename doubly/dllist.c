@@ -235,46 +235,6 @@ int ddeleteAllKey(linkedList *list, int key)
     return 1;
 }
 
-void displayDList(linkedList *list)
-{
-    printf("========================Linked List========================\r\r\n");
-    LNode *dcurrent = list->preHead.next;
-    while ((dcurrent != &(list->postTail)))
-    {
-        printf("%d<->", ((DNode *)(dcurrent))->data);
-        dcurrent = dcurrent->next;
-    }
-    printf("NULL\r\n");
-}
-
-void displayDListWithCursor(linkedList *list, LNode *cur)
-{
-    int cursoroffset = 0;
-    printf("========================Linked List========================\r\n");
-    LNode *dcurrent = list->preHead.next;
-    while (dcurrent != &(list->postTail) && (dcurrent != cur))
-    {
-        cursoroffset += printf("%d<->", ((DNode *)(dcurrent))->data);
-        dcurrent = dcurrent->next;
-    }
-    if (!(dcurrent == cur))
-    {
-        printf("NULL\r\ntf you had given as cur parameter huh! -_-\r\n");
-        return;
-    }
-    while (dcurrent != &(list->postTail))
-    {
-        printf("%d<->", ((DNode *)(dcurrent))->data);
-        dcurrent = dcurrent->next;
-    }
-    printf("NULL\r\n");
-    for (int i = 0; i < cursoroffset; i++)
-    {
-        printf(" ");
-    }
-    printf("^\r\n");
-}
-
 void clearList(linkedList *list)
 {
     if (!list)

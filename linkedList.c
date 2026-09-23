@@ -8,7 +8,7 @@
 
 int main()
 {
-    linkedList *list;
+    linkedList *list = NULL;
     int menu = -5;
     enableRawMode();
     while (menu)

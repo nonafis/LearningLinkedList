@@ -28,7 +28,7 @@ int sdeleteAtHead(SNode **headadd);
 int sdeleteAtTail(SNode **headadd);
 int sdeleteAtPos(SNode **headadd, int pos);
 int sdeleteTheKey(SNode **headadd, int key);
-void sdeleteAllKey(SNode **headadd, int key);
+int sdeleteAllKey(SNode **headadd, int key);
 
 void freeSNode(SNode **headadd);
 #endif

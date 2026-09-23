@@ -284,7 +284,7 @@ int sdeleteTheKey(SNode **headadd, int key)
     {
         return sdeleteAtHead(headadd);
     }
-    else if (priorToKey->next == NULL)
+    else if (priorToKey == NULL || priorToKey->next == NULL)
     {
         printf("Key not found!\r\n");
         return 0;
@@ -296,21 +296,32 @@ int sdeleteTheKey(SNode **headadd, int key)
     }
 }
 
-void sdeleteAllKey(SNode **headadd, int key)
+int sdeleteAllKey(SNode **headadd, int key)
 {
+    if (*headadd == NULL)
+    {
+        printf("List is empty. Nothing to delete.\r\n");
+        return 0;
+    }
+    int deletedAtLeastOnce = 0;
     SNode *priorToKey = getPriorToKey(*headadd, key);
-    while ((((*headadd)==NULL)||((*headadd)!=NULL&&(*headadd)->data==key)))
+    while ((*headadd) != NULL && (*headadd)->data == key)
     {
         sdeleteAtHead(headadd);
+        deletedAtLeastOnce = 1;
         if (*headadd == NULL)
-            return;
+            return deletedAtLeastOnce;
         priorToKey = getPriorToKey(*headadd, key);
     }
-    while (priorToKey->next != NULL)
+    while (priorToKey != NULL && priorToKey->next != NULL)
     {
         deleteSNode(headadd, priorToKey);
+        deletedAtLeastOnce = 1;
         priorToKey = getPriorToKey(priorToKey, key);
     }
+    if (!deletedAtLeastOnce)
+        printf("Key not found!\r\n");
+    return deletedAtLeastOnce;
 }
 
 void freeSNode(SNode **headadd)
