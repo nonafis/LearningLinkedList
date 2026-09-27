@@ -1,22 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "sllist.h"
 #include "dllist.h"
+#include "sllist.h"
+#define START_OF(l) ((l)->preHead.next)
 
-DNode *createDNode(int d)
+opStatus createDNode(int d, DNode **newNodeadd)
 {
-    DNode *newNode = malloc(sizeof(DNode));
-    if (!newNode)
+    *newNodeadd = malloc(sizeof(DNode));
+    if (!(*newNodeadd))
     {
-        printf("Node creation failed. Memory Allocation Unsuccessful.\r\n");
-        exit(1);
+        return OP_ALLOC_FAILED;
     }
-    else
-    {
-        newNode->data = d;
-        newNode->link.prev = newNode->link.next = NULL;
-        return newNode;
-    }
+    (*newNodeadd)->data = d;
+    (*newNodeadd)->link.prev = (*newNodeadd)->link.next = NULL;
+    return OP_SUCCESS;
 }
 
 // MNode *createMNode(int d, LNode *nodeadd)
@@ -36,19 +33,18 @@ DNode *createDNode(int d)
 //     }
 // }
 
-linkedList *createList()
+opStatus createList(linkedList **listadd)
 {
-    linkedList *newList = malloc(sizeof(linkedList));
-    if (!newList)
+    *listadd = malloc(sizeof(linkedList));
+    if (!(*listadd))
     {
-        printf("Allocation failed!\r\n");
-        exit(1);
+        return OP_ALLOC_FAILED;
     }
-    initDList(newList);
-    return newList;
+    initList(*listadd);
+    return OP_SUCCESS;
 }
 
-void initDList(linkedList *list)
+void initList(linkedList *list)
 {
     list->preHead.prev = NULL;
     list->preHead.next = &(list->postTail);
@@ -57,44 +53,44 @@ void initDList(linkedList *list)
     list->length = 0;
 }
 
-LNode *dgetByPos(linkedList *list, int pos)
+opStatus dgetByPos(linkedList *list, int pos, LNode **posNodeadd)
 {
+    *posNodeadd = NULL;
     if (pos < 0)
     {
-        printf("Position can't be negative.\r\n");
-        fflush(stdout);
-        return NULL;
+        return OP_ERROR_NEGATIVE_POSITION;
     }
     if (pos >= list->length)
     {
-        printf("Position out of range.\r\n");
-        fflush(stdout);
-        return NULL;
+        return OP_ERROR_OUT_OF_RANGE_POSITION;
     }
-    LNode *posNode = list->preHead.next;
+    *posNodeadd = list->preHead.next;
     for (int i = 0; (i < pos); i++)
     {
-        posNode = posNode->next;
+        (*posNodeadd) = (*posNodeadd)->next;
     }
-    return posNode;
+    return OP_SUCCESS;
 }
 
-LNode *dgetByKey(linkedList *list, int key)
-{
-    LNode *keyNode = dgetByKeyFromNode(list, key, list->preHead.next);
-    if (!keyNode)
-        printf("Key not found.\r\n");
-    return keyNode;
-}
+// opStatus dgetByKey(linkedList *list, int key, LNode **keyNodeadd) // redundant now
+// {
+//     return dgetByKeyFrom(keyNodeadd, list, key, list->preHead.next);
+// }
 
-LNode *dgetByKeyFromNode(linkedList *list, int key, LNode *start)
+opStatus dgetByKeyFrom(linkedList *list, int key, LNode *start, LNode **keyNodeadd)
 {
+    *keyNodeadd = NULL;
     LNode *cur = start;
     while ((cur != &(list->postTail)) && (((DNode *)(cur))->data != key))
     {
         cur = cur->next;
     }
-    return cur == &(list->postTail) ? NULL : cur;
+    if (cur == &(list->postTail))
+    {
+        return OP_ERROR_KEY_NOT_FOUND;
+    }
+    *keyNodeadd = cur;
+    return OP_SUCCESS;
 }
 
 void insertDNode(linkedList *list, LNode *priorNode, LNode *inserteeNode)
@@ -114,125 +110,146 @@ void deleteDNode(linkedList *list, LNode *deadNode)
     --(list->length);
 }
 
-void appendDList(linkedList *list, int d)
+opStatus appendDList(linkedList *list, int d)
 {
-    DNode *newNode = createDNode(d);
+    DNode *newNode;
+    opStatus s = createDNode(d, &newNode);
+    if (s != OP_SUCCESS)
+    {
+        return s;
+    }
     insertDNode(list, list->postTail.prev, &(newNode->link));
+    return OP_SUCCESS;
 }
 
-void dinsertAtHead(linkedList *list, int d)
+opStatus dinsertAtHead(linkedList *list, int d)
 {
-    DNode *newNode = createDNode(d);
+    DNode *newNode;
+    opStatus s = createDNode(d, &newNode);
+    if (s != OP_SUCCESS)
+    {
+        return s;
+    }
     insertDNode(list, &(list->preHead), &(newNode->link));
+    return OP_SUCCESS;
 }
 
-int dinsertAtPos(linkedList *list, int d, int pos)
+opStatus dinsertAtPos(linkedList *list, int d, int pos)
 {
     if (pos == list->length)
     {
-        appendDList(list, d);
-        return 1;
+        return appendDList(list, d);
     }
     LNode *posNode;
-    if ((posNode = dgetByPos(list, pos)))
+    DNode *newNode;
+    opStatus s = dgetByPos(list, pos, &posNode);
+    if (s != OP_SUCCESS)
     {
-        LNode *priorNode = posNode->prev;
-        insertDNode(list, priorNode, &(createDNode(d)->link));
-        return 1;
+        return s;
     }
-    else
+    if ((s = createDNode(d, &newNode)) != OP_SUCCESS)
     {
-        return 0;
+        return s;
     }
+    insertDNode(list, posNode->prev, &(newNode->link));
+    return OP_SUCCESS;
 }
 
-int dinsertAfterKey(linkedList *list, int d, int key)
+opStatus dinsertAfterKey(linkedList *list, int d, int key)
 {
     LNode *keyNode;
-    if ((keyNode = dgetByKey(list, key)))
+    DNode *newNode;
+    opStatus s = dgetByKeyFrom(list, key, START_OF(list), &keyNode);
+    if (s != OP_SUCCESS)
     {
-        insertDNode(list, keyNode, &(createDNode(d)->link));
-        return 1;
+        return s;
     }
-    else
+    if ((s = createDNode(d, &newNode)) != OP_SUCCESS)
     {
-        return 0;
+        return s;
     }
+    insertDNode(list, keyNode, &(newNode->link));
+    return OP_SUCCESS;
 }
 
-int dinsertBeforeKey(linkedList *list, int d, int key)
+opStatus dinsertBeforeKey(linkedList *list, int d, int key)
 {
     LNode *keyNode;
-    if ((keyNode = dgetByKey(list, key)))
+    DNode *newNode;
+    opStatus s = dgetByKeyFrom(list, key, START_OF(list), &keyNode);
+    if (s != OP_SUCCESS)
     {
-        LNode *priorNode = keyNode->prev;
-        insertDNode(list, priorNode, &(createDNode(d)->link));
-        return 1;
+        return s;
     }
-    else
+    if ((s = createDNode(d, &newNode)) != OP_SUCCESS)
     {
-        return 0;
+        return s;
     }
+    LNode *priorNode = keyNode->prev;
+    insertDNode(list, priorNode, &(newNode->link));
+    return OP_SUCCESS;
 }
 
-void ddeleteHead(linkedList *list)
+opStatus ddeleteHead(linkedList *list)
 {
-    if ((list->preHead.next) != &(list->postTail))
-        deleteDNode(list, list->preHead.next);
+    if ((list->preHead.next) == &(list->postTail))
+    {
+        return OP_ERROR_EMPTY_LIST;
+    }
+    deleteDNode(list, list->preHead.next);
+    return OP_SUCCESS;
 }
 
-void ddeleteTail(linkedList *list)
+opStatus ddeleteTail(linkedList *list)
 {
-    if (list->postTail.prev != &(list->preHead))
+    if (list->postTail.prev == &(list->preHead))
     {
-        deleteDNode(list, list->postTail.prev);
+        return OP_ERROR_EMPTY_LIST;
     }
+    deleteDNode(list, list->postTail.prev);
+    return OP_SUCCESS;
 }
 
-int ddeleteAtPos(linkedList *list, int pos)
+opStatus ddeleteAtPos(linkedList *list, int pos)
 {
-    LNode *deadNode = dgetByPos(list, pos);
-    if (deadNode)
+    LNode *deadNode;
+    opStatus s = dgetByPos(list, pos, &deadNode);
+    if (s != OP_SUCCESS)
     {
-        deleteDNode(list, deadNode);
-        return 1;
+        return s;
     }
-    else
-    {
-        return 0;
-    }
+    deleteDNode(list, deadNode);
+    return OP_SUCCESS;
 }
 
-int ddeleteTheKey(linkedList *list, int key)
+opStatus ddeleteTheKey(linkedList *list, int key)
 {
-    LNode *deadNode = dgetByKey(list, key);
-    if (deadNode)
+    LNode *deadNode;
+    opStatus s = dgetByKeyFrom(list, key, START_OF(list), &deadNode);
+    if (s != OP_SUCCESS)
     {
-        deleteDNode(list, deadNode);
-        return 1;
+        return s;
     }
-    else
-    {
-        return 0;
-    }
+    deleteDNode(list, deadNode);
+    return OP_SUCCESS;
 }
 
-int ddeleteAllKey(linkedList *list, int key)
+opStatus ddeleteAllKey(linkedList *list, int key)
 {
     LNode *cur;
-    if (!(cur = dgetByKeyFromNode(list, key, list->preHead.next)))
+    opStatus s = dgetByKeyFrom(list, key, START_OF(list), &cur);
+    if (s != OP_SUCCESS)
     {
-        printf("Key not found!\r\n");
-        return 0;
+        return s;
     }
-    LNode *deadNode;
-    while (cur)
+    LNode *deadNode; // this uses two pointer to keep track of matching node so that it can continue scanning from the last deleted node
+    while (s == OP_SUCCESS)
     {
-        deadNode = cur;
-        cur = dgetByKeyFromNode(list, key, cur->next);
+        deadNode = cur;                                // save the current matching node in the deadNode
+        s = dgetByKeyFrom(list, key, cur->next, &cur); // this can only work(continue from after matching node) coz the matching node has not been deleted yet //, although there could have been another that will not need two LNode ptrs that is setting the cur to cur->prev before deleting then delete the cur->next and then continue from cur->next.
         deleteDNode(list, deadNode);
     }
-    return 1;
+    return OP_SUCCESS;
 }
 
 void clearList(linkedList *list)
@@ -241,15 +258,8 @@ void clearList(linkedList *list)
     {
         return;
     }
-    LNode *dcurrent = (list)->preHead.next;
-    while (dcurrent != &((list)->postTail))
-    {
-        dcurrent = dcurrent->next;
-        dcurrent->prev = dcurrent->prev->prev;
-        free((DNode *)dcurrent->prev->next);
-        dcurrent->prev->next = dcurrent;
-        --(list->length);
-    }
+    while (ddeleteHead(list) == OP_SUCCESS) //keep deleting at head until the list becomes empty which will the condition false itself
+        ;
 }
 
 void freeDList(linkedList **listadd)
@@ -259,14 +269,24 @@ void freeDList(linkedList **listadd)
     *listadd = NULL;
 }
 
-linkedList *s2d(SNode *head)
+opStatus s2d(SNode *head, linkedList **listadd)
 {
     SNode *current = head;
-    linkedList *list = createList();
+    linkedList *list;
+    opStatus s = createList(&list);
+    if (s != OP_SUCCESS)
+    {
+        return s;
+    }
     while (current != NULL)
     {
-        appendDList(list, current->data);
+        if ((s = appendDList(list, current->data)) != OP_SUCCESS)
+        {
+            freeDList(&list);
+            return s;
+        }
         current = current->next;
     }
-    return list;
+    *listadd = list;
+    return OP_SUCCESS;
 }
