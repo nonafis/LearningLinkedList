@@ -36,7 +36,10 @@ opStatus createList(linkedList **listadd);
 
 opStatus dgetByPos(linkedList *list, int pos, LNode **posNodeadd);
 opStatus dgetByKeyFrom(linkedList *list, int key, LNode *start, LNode **keyNodeadd);
-// LNode *dgetByKey(linkedList *list, int key);
+static inline opStatus dgetByKey(linkedList *list, int key, LNode **keyNodeadd)
+{
+    return dgetByKeyFrom(keyNodeadd, list, key, list->preHead.next);
+}
 
 void insertDNode(linkedList *list, LNode *priorNode, LNode *inserteeNode);
 void deleteDNode(linkedList *list, LNode *deadNode);

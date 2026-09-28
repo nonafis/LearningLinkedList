@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "dllist.h"
 #include "sllist.h"
-#define START_OF(l) ((l)->preHead.next)
 
 opStatus createDNode(int d, DNode **newNodeadd)
 {
@@ -62,20 +61,15 @@ opStatus dgetByPos(linkedList *list, int pos, LNode **posNodeadd)
     }
     if (pos >= list->length)
     {
-        return OP_ERROR_OUT_OF_RANGE_POSITION;
-    }
-    *posNodeadd = list->preHead.next;
+        return OP_ERROR_OUT_OF_RANGE_POSITION; 
+    } //negative position are invalid anyways, but for empty list non negative position are invalid too. maybe I can add a check for list->length == 0 right at the top to pass OP_ERROR_EMPTY_LIST
+    *posNodeadd = list->preHead.next;   
     for (int i = 0; (i < pos); i++)
     {
         (*posNodeadd) = (*posNodeadd)->next;
     }
     return OP_SUCCESS;
 }
-
-// opStatus dgetByKey(linkedList *list, int key, LNode **keyNodeadd) // redundant now
-// {
-//     return dgetByKeyFrom(keyNodeadd, list, key, list->preHead.next);
-// }
 
 opStatus dgetByKeyFrom(linkedList *list, int key, LNode *start, LNode **keyNodeadd)
 {
@@ -159,7 +153,7 @@ opStatus dinsertAfterKey(linkedList *list, int d, int key)
 {
     LNode *keyNode;
     DNode *newNode;
-    opStatus s = dgetByKeyFrom(list, key, START_OF(list), &keyNode);
+    opStatus s = dgetByKey(list, key, &keyNode);
     if (s != OP_SUCCESS)
     {
         return s;
@@ -176,7 +170,7 @@ opStatus dinsertBeforeKey(linkedList *list, int d, int key)
 {
     LNode *keyNode;
     DNode *newNode;
-    opStatus s = dgetByKeyFrom(list, key, START_OF(list), &keyNode);
+    opStatus s = dgetByKey(list, key, &keyNode);
     if (s != OP_SUCCESS)
     {
         return s;
@@ -225,7 +219,7 @@ opStatus ddeleteAtPos(linkedList *list, int pos)
 opStatus ddeleteTheKey(linkedList *list, int key)
 {
     LNode *deadNode;
-    opStatus s = dgetByKeyFrom(list, key, START_OF(list), &deadNode);
+    opStatus s = dgetByKey(list, key, &deadNode);
     if (s != OP_SUCCESS)
     {
         return s;
@@ -237,7 +231,7 @@ opStatus ddeleteTheKey(linkedList *list, int key)
 opStatus ddeleteAllKey(linkedList *list, int key)
 {
     LNode *cur;
-    opStatus s = dgetByKeyFrom(list, key, START_OF(list), &cur);
+    opStatus s = dgetByKey(list, key, &cur);
     if (s != OP_SUCCESS)
     {
         return s;
