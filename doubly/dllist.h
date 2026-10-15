@@ -1,6 +1,6 @@
 #ifndef DLLIST_H
 #define DLLIST_H
-#include "../convention.h"
+#include "convention.h"
 #include "sllist.h"
 typedef struct LNode
 {
@@ -14,12 +14,11 @@ typedef struct DNode
     int data;
 } DNode;
 
-// typedef struct MNode
-// {
-//     LNode link;
-//     int intData;
-//     LNode *addressData;
-// } MNode;
+typedef struct NANode
+{
+    LNode link;
+    LNode *nodeAddress;
+} NANode;
 
 typedef struct linkedList
 {
@@ -29,7 +28,7 @@ typedef struct linkedList
 } linkedList;
 
 opStatus createDNode(int d, DNode **newNodeadd);
-// MNode *createMNode(int d, LNode *nodeadd);
+opStatus createNANode(LNode *d, NANode **newNANodeadd);
 
 void initList(linkedList *list);
 opStatus createList(linkedList **listadd);
@@ -38,7 +37,7 @@ opStatus dgetByPos(linkedList *list, int pos, LNode **posNodeadd);
 opStatus dgetByKeyFrom(linkedList *list, int key, LNode *start, LNode **keyNodeadd);
 static inline opStatus dgetByKey(linkedList *list, int key, LNode **keyNodeadd)
 {
-    return dgetByKeyFrom(keyNodeadd, list, key, list->preHead.next);
+    return dgetByKeyFrom(list, key, list->preHead.next, keyNodeadd);
 }
 
 void insertDNode(linkedList *list, LNode *priorNode, LNode *inserteeNode);

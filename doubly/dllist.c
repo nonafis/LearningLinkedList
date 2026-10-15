@@ -15,22 +15,17 @@ opStatus createDNode(int d, DNode **newNodeadd)
     return OP_SUCCESS;
 }
 
-// MNode *createMNode(int d, LNode *nodeadd)
-// {
-//     MNode *newNode = malloc(sizeof(MNode));
-//     if (!newNode)
-//     {
-//         printf("Node creation failed. Memory Allocation Unsuccessful.\r\n");
-//         exit(1);
-//     }
-//     else
-//     {
-//         newNode->intData = d;
-//         newNode->addressData = nodeadd;
-//         newNode->link.prev = newNode->link.next = NULL;
-//         return newNode;
-//     }
-// }
+opStatus createNANode(LNode *d, NANode **newNANodeadd)
+{
+    *newNANodeadd = malloc(sizeof(NANode));
+    if (!(*newNANodeadd))
+    {
+        return OP_ALLOC_FAILED;
+    }
+    (*newNANodeadd)->nodeAddress = d;
+    (*newNANodeadd)->link.prev = (*newNANodeadd)->link.next = NULL;
+    return OP_SUCCESS;
+}
 
 opStatus createList(linkedList **listadd)
 {
