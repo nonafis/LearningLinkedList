@@ -1,6 +1,6 @@
 CC := gcc
-CFLAGS := -Wall
-INCLUDES := -Idoubly -Isingly -Iterminal
+CFLAGS := -Wall -Wextra -g -MMD -MP
+INCLUDES := -I. -Idoubly -Isingly -Iterminal
 ifeq ($(OS),Windows_NT)
     RM = del /Q /F
     FIX_PATH = $(subst /,\,$1)
@@ -13,8 +13,9 @@ else
     RUN = ./$(EXEC)
 endif
 
-SRCS := linkedList.c cli.c doubly/dllist.c singly/sllist.c terminal/rawMode.c terminal/timer.c terminal/terminalcontrol.c
+SRCS := linkedList.c cli.c doubly/dllist.c singly/sllist.c terminal/rawMode.c terminal/timer.c terminal/terminalcontrol.c terminal/terminalconfig.c
 OBJS := $(SRCS:.c=.o)
+DEPS := $(OBJS:.o=.d)
 
 $(EXEC): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) -o $(EXEC)
@@ -24,7 +25,9 @@ $(EXEC): $(OBJS)
 
 .PHONY: clean run
 clean: 
-	$(RM) $(call FIX_PATH,$(EXEC) $(OBJS))
+	$(RM) $(call FIX_PATH,$(EXEC) $(OBJS) $(DEPS))
 
 run: $(EXEC)
 	$(RUN)
+
+-include $(DEPS)
