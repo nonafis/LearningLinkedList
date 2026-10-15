@@ -1,5 +1,9 @@
 #ifndef CONVENTION_H
 #define CONVENTION_H
+#include <stdbool.h>
+#define LEFT_ARROW_CHAR "\xE2\x86\x90"
+#define RIGHT_ARROW_CHAR "\xE2\x86\x92"
+
 typedef enum
 {
     OP_SUCCESS,
@@ -12,6 +16,51 @@ typedef enum
     OP_ERROR_EMPTY_LIST,
     OP_SINGLE_NODE_LIST,
     OP_KEY_AT_HEAD,
+    OP_ERROR_STACK_OVERFLOW,
+    OP_ERROR_STACK_UNDERFLOW,
     OP_ALLOC_FAILED
 } opStatus;
+
+typedef enum
+{
+    BASE,
+    MAIN_MENU,
+    EMPTY_LIST_MENU,
+    IS_LIST_MENU,
+    INSERTION_MENU,
+    KEY_INSERT_SUBMENU,
+    DELETION_MENU,
+    KEY_DELETE_SUBMENU,
+    NAVIGATION_MENU,
+    SEARCH_MENU,
+    SEARCH_INSERT_SUBMENU
+} menu;
+
+// typedef enum
+// {
+//     NO_ACTION,
+//     QUIT,
+//     CREATE_LIST,
+//     DELETE_LIST,
+//     OPEN_NM,
+//     OPEN_IM,
+//     OPEN_DM,
+//     OPEN_SM,
+//     BACK,
+//     HEAD_INSERT,
+//     TAIL_INSERT,
+//     POS_INSERT,
+//     AKEY_INSERT,
+//     BKEY_INSERT,
+//     HEAD_DELETE,
+//     TAIL_DELETE,
+//     POS_DELETE,
+//     OKEY_DELETE,
+//     AKEY_DELETE,
+//     DELETE_ALL_NODE,
+//     MOVE_LEFT_CURSOR,
+//     MOVE_RIGHT_CURSOR,
+//     INSERT,
+//     DELETE,
+// } actionId;
 #endif
