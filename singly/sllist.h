@@ -1,6 +1,6 @@
 #ifndef SLLIST_H
 #define SLLIST_H
-#include "../convention.h"
+#include "convention.h"
 typedef struct SNode
 {
     int data;
