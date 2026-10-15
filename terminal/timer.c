@@ -1,14 +1,14 @@
 #include "timer.h"
 #ifdef _WIN32
-#include<conio.h>
-#include<windows.h>
+#include <conio.h>
+#include <windows.h>
 void timer(unsigned int deciseconds)
 {
-    Sleep(deciseconds*100);
+    Sleep(deciseconds * 100);
 }
-int timeoutC(unsigned int deciseconds)
+int msTimeoutC(unsigned int milliseconds)
 {
-    DWORD ms = deciseconds * 100;
+    DWORD ms = milliseconds;
     DWORD start = GetTickCount();
 
     while (GetTickCount() - start < ms)
@@ -20,25 +20,40 @@ int timeoutC(unsigned int deciseconds)
     return 0;
 }
 #else
-#include<unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
 #include <sys/select.h>
 void timer(unsigned int deciseconds)
 {
-    usleep(deciseconds*100000);
+    usleep(deciseconds * 100000);
 }
-int timeoutC(unsigned int deciseconds)
+int msTimeoutC(unsigned int milliseconds)
 {
-    fd_set read_fds;
-    struct timeval timeout;
-    
-    FD_ZERO(&read_fds);
-    FD_SET(0, &read_fds); // 0 is the file descriptor for standard input (keyboard)
+    while (1)
+    {
+        fd_set read_fds;
+        struct timeval timeout;
 
-    timeout.tv_sec  = deciseconds / 10;
-    timeout.tv_usec = (deciseconds % 10) * 100000;
+        FD_ZERO(&read_fds);
+        FD_SET(0, &read_fds); // 0 is the file descriptor for stdin
 
-    int ready = select(1, &read_fds, NULL, NULL, &timeout);
-    return ready;
+        timeout.tv_sec = milliseconds / 1000;
+        timeout.tv_usec = (milliseconds % 1000) * 1000;
+
+        int ready = select(1, &read_fds, NULL, NULL, &timeout);
+        if (ready >= 0)
+        {
+            return ready;
+        }
+        if (errno == EINTR)
+        {
+            continue;
+        }
+        perror("select");
+        exit(1);
+    }
 }
 
 #endif
