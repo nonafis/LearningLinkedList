@@ -3,27 +3,27 @@
 #include "dllist.h"
 #include "sllist.h"
 
-opStatus createDNode(int d, DNode **newNodeadd)
+opStatus createIntDNode(int d, intDNode **newIntDNodeadd)
 {
-    *newNodeadd = malloc(sizeof(DNode));
-    if (!(*newNodeadd))
+    *newIntDNodeadd = malloc(sizeof(intDNode));
+    if (!(*newIntDNodeadd))
     {
         return OP_ALLOC_FAILED;
     }
-    (*newNodeadd)->data = d;
-    (*newNodeadd)->link.prev = (*newNodeadd)->link.next = NULL;
+    (*newIntDNodeadd)->intData = d;
+    (*newIntDNodeadd)->link.prev = (*newIntDNodeadd)->link.next = NULL;
     return OP_SUCCESS;
 }
 
-opStatus createNANode(LNode *d, NANode **newNANodeadd)
+opStatus createNADNode(LNode *d, NADNode **newNADNodeadd)
 {
-    *newNANodeadd = malloc(sizeof(NANode));
-    if (!(*newNANodeadd))
+    *newNADNodeadd = malloc(sizeof(NADNode));
+    if (!(*newNADNodeadd))
     {
         return OP_ALLOC_FAILED;
     }
-    (*newNANodeadd)->nodeAddress = d;
-    (*newNANodeadd)->link.prev = (*newNANodeadd)->link.next = NULL;
+    (*newNADNodeadd)->nodeAddressData = d;
+    (*newNADNodeadd)->link.prev = (*newNADNodeadd)->link.next = NULL;
     return OP_SUCCESS;
 }
 
@@ -66,11 +66,11 @@ opStatus dgetByPos(linkedList *list, int pos, LNode **posNodeadd)
     return OP_SUCCESS;
 }
 
-opStatus dgetByKeyFrom(linkedList *list, int key, LNode *start, LNode **keyNodeadd)
+opStatus dgetByIntKeyFrom(linkedList *list, int key, LNode *start, LNode **keyNodeadd)
 {
     *keyNodeadd = NULL;
     LNode *cur = start;
-    while ((cur != &(list->postTail)) && (((DNode *)(cur))->data != key))
+    while ((cur != &(list->postTail)) && (((intDNode *)(cur))->intData != key))
     {
         cur = cur->next;
     }
@@ -95,14 +95,14 @@ void deleteDNode(linkedList *list, LNode *deadNode)
 {
     deadNode->prev->next = deadNode->next;
     deadNode->next->prev = deadNode->prev;
-    free((DNode *)deadNode);
+    free(deadNode);
     --(list->length);
 }
 
-opStatus appendDList(linkedList *list, int d)
+opStatus appendIntDList(linkedList *list, int d)
 {
-    DNode *newNode;
-    opStatus s = createDNode(d, &newNode);
+    intDNode *newNode;
+    opStatus s = createIntDNode(d, &newNode);
     if (s != OP_SUCCESS)
     {
         return s;
@@ -111,10 +111,10 @@ opStatus appendDList(linkedList *list, int d)
     return OP_SUCCESS;
 }
 
-opStatus dinsertAtHead(linkedList *list, int d)
+opStatus dinsertIntAtHead(linkedList *list, int d)
 {
-    DNode *newNode;
-    opStatus s = createDNode(d, &newNode);
+    intDNode *newNode;
+    opStatus s = createIntDNode(d, &newNode);
     if (s != OP_SUCCESS)
     {
         return s;
@@ -123,20 +123,20 @@ opStatus dinsertAtHead(linkedList *list, int d)
     return OP_SUCCESS;
 }
 
-opStatus dinsertAtPos(linkedList *list, int d, int pos)
+opStatus dinsertIntAtPos(linkedList *list, int d, int pos)
 {
     if (pos == list->length)
     {
-        return appendDList(list, d);
+        return appendIntDList(list, d);
     }
     LNode *posNode;
-    DNode *newNode;
+    intDNode *newNode;
     opStatus s = dgetByPos(list, pos, &posNode);
     if (s != OP_SUCCESS)
     {
         return s;
     }
-    if ((s = createDNode(d, &newNode)) != OP_SUCCESS)
+    if ((s = createIntDNode(d, &newNode)) != OP_SUCCESS)
     {
         return s;
     }
@@ -144,16 +144,16 @@ opStatus dinsertAtPos(linkedList *list, int d, int pos)
     return OP_SUCCESS;
 }
 
-opStatus dinsertAfterKey(linkedList *list, int d, int key)
+opStatus dinsertIntAfterKey(linkedList *list, int d, int key)
 {
     LNode *keyNode;
-    DNode *newNode;
-    opStatus s = dgetByKey(list, key, &keyNode);
+    intDNode *newNode;
+    opStatus s = dgetByIntKey(list, key, &keyNode);
     if (s != OP_SUCCESS)
     {
         return s;
     }
-    if ((s = createDNode(d, &newNode)) != OP_SUCCESS)
+    if ((s = createIntDNode(d, &newNode)) != OP_SUCCESS)
     {
         return s;
     }
@@ -161,16 +161,16 @@ opStatus dinsertAfterKey(linkedList *list, int d, int key)
     return OP_SUCCESS;
 }
 
-opStatus dinsertBeforeKey(linkedList *list, int d, int key)
+opStatus dinsertIntBeforeKey(linkedList *list, int d, int key)
 {
     LNode *keyNode;
-    DNode *newNode;
-    opStatus s = dgetByKey(list, key, &keyNode);
+    intDNode *newNode;
+    opStatus s = dgetByIntKey(list, key, &keyNode);
     if (s != OP_SUCCESS)
     {
         return s;
     }
-    if ((s = createDNode(d, &newNode)) != OP_SUCCESS)
+    if ((s = createIntDNode(d, &newNode)) != OP_SUCCESS)
     {
         return s;
     }
@@ -211,10 +211,10 @@ opStatus ddeleteAtPos(linkedList *list, int pos)
     return OP_SUCCESS;
 }
 
-opStatus ddeleteTheKey(linkedList *list, int key)
+opStatus ddeleteTheIntKey(linkedList *list, int key)
 {
     LNode *deadNode;
-    opStatus s = dgetByKey(list, key, &deadNode);
+    opStatus s = dgetByIntKey(list, key, &deadNode);
     if (s != OP_SUCCESS)
     {
         return s;
@@ -223,10 +223,10 @@ opStatus ddeleteTheKey(linkedList *list, int key)
     return OP_SUCCESS;
 }
 
-opStatus ddeleteAllKey(linkedList *list, int key)
+opStatus ddeleteAllIntKey(linkedList *list, int key)
 {
     LNode *cur;
-    opStatus s = dgetByKey(list, key, &cur);
+    opStatus s = dgetByIntKey(list, key, &cur);
     if (s != OP_SUCCESS)
     {
         return s;
@@ -235,7 +235,7 @@ opStatus ddeleteAllKey(linkedList *list, int key)
     while (s == OP_SUCCESS)
     {
         deadNode = cur;                                // save the current matching node in the deadNode
-        s = dgetByKeyFrom(list, key, cur->next, &cur); // this can only work(continue from after matching node) coz the matching node has not been deleted yet //, although there could have been another that will not need two LNode ptrs that is setting the cur to cur->prev before deleting then delete the cur->next and then continue from cur->next.
+        s = dgetByIntKeyFrom(list, key, cur->next, &cur); // this can only work(continue from after matching node) coz the matching node has not been deleted yet //, although there could have been another that will not need two LNode ptrs that is setting the cur to cur->prev before deleting then delete the cur->next and then continue from cur->next.
         deleteDNode(list, deadNode);
     }
     return OP_SUCCESS;
@@ -251,7 +251,7 @@ void clearList(linkedList *list)
         ;
 }
 
-void freeDList(linkedList **listadd)
+void freeList(linkedList **listadd)
 {
     clearList(*listadd);
     free((*listadd));
@@ -269,9 +269,9 @@ opStatus s2d(SNode *head, linkedList **listadd)
     }
     while (current != NULL)
     {
-        if ((s = appendDList(list, current->data)) != OP_SUCCESS)
+        if ((s = appendIntDList(list, current->data)) != OP_SUCCESS)
         {
-            freeDList(&list);
+            freeList(&list);
             return s;
         }
         current = current->next;

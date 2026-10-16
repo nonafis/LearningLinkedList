@@ -388,8 +388,8 @@ static int printList(state State)
     LNode *HNcurrent = State.HNList ? State.HNList->preHead.next : NULL;
     while (current != &(State.list->postTail))
     {
-        int datawidth = snprintf(NULL, 0, "%d", ((DNode *)(current))->data);
-        int sqbracketbool = (HNcurrent) && (HNcurrent != &(State.HNList->postTail)) && (current == ((NANode *)HNcurrent)->nodeAddress);
+        int datawidth = snprintf(NULL, 0, "%d", ((intDNode *)(current))->intData);
+        int sqbracketbool = (HNcurrent) && (HNcurrent != &(State.HNList->postTail)) && (current == ((NADNode *)HNcurrent)->nodeAddressData);
         if (offset > 0)
         {
             offset += printf("%s", arrowseperator);
@@ -416,12 +416,12 @@ static int printList(state State)
             {
                 offset += printf("%s", opensqbracket);
             }
-            if (current == (State.HNList ? ((NANode *)(State.cursoredNode))->nodeAddress : State.cursoredNode))
+            if (current == (State.HNList ? ((NADNode *)(State.cursoredNode))->nodeAddressData : State.cursoredNode))
             {
                 cursoroffset = offset;
                 cursorFound = 1;
             }
-            offset += printf("%d", ((DNode *)(current))->data);
+            offset += printf("%d", ((intDNode *)(current))->intData);
             if (sqbracketbool)
             {
                 offset += printf("%s", closesqbracket);
@@ -474,9 +474,9 @@ static void addFirstNodeAction(state *Stateadd)
 }
 static void deleteListAction(state *Stateadd)
 {
-    freeDList(&(Stateadd->HNList));
+    freeList(&(Stateadd->HNList));
     Stateadd->cursoredNode = NULL;
-    freeDList(&(Stateadd->list));
+    freeList(&(Stateadd->list));
 }
 static void headInsAction(state *Stateadd)
 {
@@ -485,7 +485,7 @@ static void headInsAction(state *Stateadd)
     {
         return;
     }
-    opStatus status = dinsertAtHead(Stateadd->list, data);
+    opStatus status = dinsertIntAtHead(Stateadd->list, data);
     if (reportOpError(status, *Stateadd))
     {
         return;
@@ -498,7 +498,7 @@ static void tailInsAction(state *Stateadd)
     {
         return;
     }
-    opStatus status = appendDList(Stateadd->list, data);
+    opStatus status = appendIntDList(Stateadd->list, data);
     if (reportOpError(status, *Stateadd))
     {
         return;
@@ -516,7 +516,7 @@ static void posInsAction(state *Stateadd)
     {
         return;
     }
-    opStatus status = dinsertAtPos(Stateadd->list, data, pos);
+    opStatus status = dinsertIntAtPos(Stateadd->list, data, pos);
     if (reportOpError(status, *Stateadd))
     {
         return;
@@ -538,7 +538,7 @@ static void afterKeyInsAction(state *Stateadd)
     {
         return;
     }
-    opStatus status = dinsertAfterKey(Stateadd->list, data, key);
+    opStatus status = dinsertIntAfterKey(Stateadd->list, data, key);
     if (reportOpError(status, *Stateadd))
     {
         return;
@@ -556,7 +556,7 @@ static void beforeKeyInsAction(state *Stateadd)
     {
         return;
     }
-    opStatus status = dinsertBeforeKey(Stateadd->list, data, key);
+    opStatus status = dinsertIntBeforeKey(Stateadd->list, data, key);
     if (reportOpError(status, *Stateadd))
     {
         return;
@@ -598,7 +598,7 @@ static void oneKeyDelAction(state *Stateadd)
     {
         return;
     }
-    opStatus status = ddeleteTheKey(Stateadd->list, key);
+    opStatus status = ddeleteTheIntKey(Stateadd->list, key);
     if (reportOpError(status, *Stateadd))
     {
         return;
@@ -611,7 +611,7 @@ static void allKeyDelAction(state *Stateadd)
     {
         return;
     }
-    opStatus status = ddeleteAllKey(Stateadd->list, key);
+    opStatus status = ddeleteAllIntKey(Stateadd->list, key);
     if (reportOpError(status, *Stateadd))
     {
         return;
@@ -638,7 +638,7 @@ static void navBackAction(state *Stateadd)
 }
 static void searchBackAction(state *Stateadd)
 {
-    freeDList(&(Stateadd->HNList));
+    freeList(&(Stateadd->HNList));
     Stateadd->cursoredNode = NULL;
     backAction(Stateadd);
 }
@@ -652,13 +652,13 @@ static void moveCursorRightAction(state *Stateadd)
 }
 static void insertAction(state *Stateadd)
 {
-    DNode *newNode;
+    intDNode *newNode;
     int data;
     if (getInput("Enter data:", &data) != OP_SUCCESS)
     {
         return;
     }
-    opStatus s = createDNode(data, &newNode);
+    opStatus s = createIntDNode(data, &newNode);
     if (reportOpError(s, *Stateadd))
     {
         return;
@@ -670,7 +670,7 @@ static void deleteAction(state *Stateadd)
 {
     linkedList *cursoredList = Stateadd->HNList ? Stateadd->HNList : Stateadd->list;
     Stateadd->cursoredNode = Stateadd->cursoredNode->prev;
-    LNode *deadNode = Stateadd->HNList ? ((NANode *)(Stateadd->cursoredNode->next))->nodeAddress : Stateadd->cursoredNode->next;
+    LNode *deadNode = Stateadd->HNList ? ((NADNode *)(Stateadd->cursoredNode->next))->nodeAddressData : Stateadd->cursoredNode->next;
     deleteDNode(Stateadd->list, deadNode);
     if (Stateadd->HNList)
     {
@@ -685,7 +685,7 @@ static void deleteAction(state *Stateadd)
         Stateadd->cursoredNode = NULL;
         if (Stateadd->HNList && !(Stateadd->HNList->length))
         {
-            freeDList(&(Stateadd->HNList));
+            freeList(&(Stateadd->HNList));
             backAction(Stateadd);
         }
     }
@@ -697,16 +697,16 @@ static void insertBeforeAction(state *Stateadd)
     {
         return;
     }
-    DNode *newDNode;
-    if (reportOpError(createDNode(data, &newDNode), *Stateadd))
+    intDNode *newDNode;
+    if (reportOpError(createIntDNode(data, &newDNode), *Stateadd))
     {
         return;
     }
-    insertDNode(Stateadd->list, ((NANode *)(Stateadd->cursoredNode))->nodeAddress->prev, &(newDNode->link));
-    if (data == ((DNode *)(((NANode *)(Stateadd->cursoredNode))->nodeAddress))->data)
+    insertDNode(Stateadd->list, ((NADNode *)(Stateadd->cursoredNode))->nodeAddressData->prev, &(newDNode->link));
+    if (data == ((intDNode *)(((NADNode *)(Stateadd->cursoredNode))->nodeAddressData))->intData)
     {
-        NANode *newNANode;
-        if (reportOpError(createNANode(&(newDNode->link), &newNANode), *Stateadd))
+        NADNode *newNANode;
+        if (reportOpError(createNADNode(&(newDNode->link), &newNANode), *Stateadd))
         {
             deleteDNode(Stateadd->list, &(newDNode->link));
             return;
@@ -721,16 +721,16 @@ static void insertAfterAction(state *Stateadd)
     {
         return;
     }
-    DNode *newDNode;
-    if (reportOpError(createDNode(data, &newDNode), *Stateadd))
+    intDNode *newDNode;
+    if (reportOpError(createIntDNode(data, &newDNode), *Stateadd))
     {
         return;
     }
-    insertDNode(Stateadd->list, ((NANode *)(Stateadd->cursoredNode))->nodeAddress, &(newDNode->link));
-    if (data == ((DNode *)(((NANode *)(Stateadd->cursoredNode))->nodeAddress))->data)
+    insertDNode(Stateadd->list, ((NADNode *)(Stateadd->cursoredNode))->nodeAddressData, &(newDNode->link));
+    if (data == ((intDNode *)(((NADNode *)(Stateadd->cursoredNode))->nodeAddressData))->intData)
     {
-        NANode *newNANode;
-        if (reportOpError(createNANode(&(newDNode->link), &newNANode), *Stateadd))
+        NADNode *newNANode;
+        if (reportOpError(createNADNode(&(newDNode->link), &newNANode), *Stateadd))
         {
             deleteDNode(Stateadd->list, &(newDNode->link));
             return;
@@ -811,7 +811,7 @@ static void menuSetter(state *Stateadd)
         //---if no match found---
         LNode *searchforNode = NULL;
         opStatus matchStatus;
-        if ((matchStatus = dgetByKey(Stateadd->list, searchfor, &searchforNode)) == OP_ERROR_KEY_NOT_FOUND)
+        if ((matchStatus = dgetByIntKey(Stateadd->list, searchfor, &searchforNode)) == OP_ERROR_KEY_NOT_FOUND)
         {
             printf("No matching node was found.\n");
             fflush(stdout);
@@ -829,18 +829,18 @@ static void menuSetter(state *Stateadd)
                 backAction(Stateadd);
                 return;
             }
-            NANode *matchedNode = NULL;
+            NADNode *matchedNode = NULL;
             while (matchStatus == OP_SUCCESS)
             {
-                if (reportOpError(createNANode(searchforNode, &matchedNode), *Stateadd))
+                if (reportOpError(createNADNode(searchforNode, &matchedNode), *Stateadd))
                 {
                     printf("\0338\x1b[J");
-                    freeDList(&(Stateadd->HNList));
+                    freeList(&(Stateadd->HNList));
                     backAction(Stateadd);
                     return;
                 }
                 insertDNode(Stateadd->HNList, Stateadd->HNList->postTail.prev, &(matchedNode->link));
-                matchStatus = dgetByKeyFrom(Stateadd->list, searchfor, searchforNode->next, &searchforNode);
+                matchStatus = dgetByIntKeyFrom(Stateadd->list, searchfor, searchforNode->next, &searchforNode);
             }
         }
         //================================================================
@@ -930,6 +930,6 @@ void run()
         }
         /*------------------------------------------------------------------------------------------------*/
     }
-    freeDList(&(State.HNList));
-    freeDList(&(State.list));
+    freeList(&(State.HNList));
+    freeList(&(State.list));
 }

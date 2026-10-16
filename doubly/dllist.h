@@ -8,17 +8,19 @@ typedef struct LNode
     struct LNode *next;
 } LNode;
 
-typedef struct DNode
-{
-    LNode link;
-    int data;
-} DNode;
+//Here, "DNode" means any node type whose first member is an LNode. The LNode provides the links used to traverse the node in a linkedList. Specific DNode types may use different payload types; payload-specific operations must only be used with the matching node type.
 
-typedef struct NANode
+typedef struct intDNode
 {
     LNode link;
-    LNode *nodeAddress;
-} NANode;
+    int intData;
+} intDNode;
+
+typedef struct NADNode
+{
+    LNode link;
+    LNode *nodeAddressData;
+} NADNode; // NA = node address = LNode * = the data type of the payload of the said DNode
 
 typedef struct linkedList
 {
@@ -27,36 +29,36 @@ typedef struct linkedList
     int length;
 } linkedList;
 
-opStatus createDNode(int d, DNode **newNodeadd);
-opStatus createNANode(LNode *d, NANode **newNANodeadd);
+opStatus createIntDNode(int d, intDNode **newIntNodeadd);
+opStatus createNADNode(LNode *d, NADNode **newNADNodeadd);
 
 void initList(linkedList *list);
 opStatus createList(linkedList **listadd);
 
 opStatus dgetByPos(linkedList *list, int pos, LNode **posNodeadd);
-opStatus dgetByKeyFrom(linkedList *list, int key, LNode *start, LNode **keyNodeadd);
-static inline opStatus dgetByKey(linkedList *list, int key, LNode **keyNodeadd)
+opStatus dgetByIntKeyFrom(linkedList *list, int key, LNode *start, LNode **keyNodeadd);
+static inline opStatus dgetByIntKey(linkedList *list, int key, LNode **keyNodeadd)
 {
-    return dgetByKeyFrom(list, key, list->preHead.next, keyNodeadd);
+    return dgetByIntKeyFrom(list, key, list->preHead.next, keyNodeadd);
 }
 
 void insertDNode(linkedList *list, LNode *priorNode, LNode *inserteeNode);
 void deleteDNode(linkedList *list, LNode *deadNode);
 
-opStatus appendDList(linkedList *list, int d);
-opStatus dinsertAtHead(linkedList *list, int d);
-opStatus dinsertAtPos(linkedList *list, int d, int pos);
-opStatus dinsertAfterKey(linkedList *list, int d, int key);
-opStatus dinsertBeforeKey(linkedList *list, int d, int key);
+opStatus appendIntDList(linkedList *list, int d);
+opStatus dinsertIntAtHead(linkedList *list, int d);
+opStatus dinsertIntAtPos(linkedList *list, int d, int pos);
+opStatus dinsertIntAfterKey(linkedList *list, int d, int key);
+opStatus dinsertIntBeforeKey(linkedList *list, int d, int key);
 
 opStatus ddeleteHead(linkedList *list);
 opStatus ddeleteTail(linkedList *list);
 opStatus ddeleteAtPos(linkedList *list, int pos);
-opStatus ddeleteTheKey(linkedList *list, int key);
-opStatus ddeleteAllKey(linkedList *list, int key);
+opStatus ddeleteTheIntKey(linkedList *list, int key);
+opStatus ddeleteAllIntKey(linkedList *list, int key);
 
 void clearList(linkedList *list);
-void freeDList(linkedList **listadd);
+void freeList(linkedList **listadd);
 
 opStatus s2d(SNode *head, linkedList **listadd);
 #endif

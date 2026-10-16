@@ -1,16 +1,16 @@
 # 🔗 LearningLinkedList
 
-**LearningLinkedList is a C project implementing both a singly linked list and a doubly linked list, with an interactive terminal CLI built on top of the doubly linked list**, , built as a learning project to explore linked-list data structures, pointers, dynamic memory allocation, node manipulation, and low-level terminal input.
+**LearningLinkedList is a C project implementing both a singly linked list and a doubly linked list, with an interactive terminal CLI built on top of the doubly linked list.** It is a learning project for exploring linked-list data structures, pointers, dynamic memory allocation, node manipulation, and low-level terminal input.
 
 ![Language: C](https://img.shields.io/badge/language-C-00599C?logo=c&logoColor=white)
 ![Build: Make](https://img.shields.io/badge/build-make-6D9B37)
 ![Platforms](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)
 
-This project started as a way to *really* understand linked lists, and grew into a small interactive terminal app. Instead of writing a `main()` that runs a fixed set of test calls, you create a list and drive it with single keypresses: insert at the head, delete every node matching a key, or walk a cursor along the list with the arrow keys and edit as you go. The screen redraws after each action so you can watch the pointers do their work.
+This project started as a way to *really* understand linked lists, and grew into a small interactive terminal app. Instead of writing a `main()` that runs a fixed set of test calls, you create a list and drive it with single keypresses: insert at the head, search for matching values, or walk a cursor along the list with the arrow keys and edit as you go. The screen redraws after each action so you can watch the pointers do their work.
 
 ```
 ========================Linked List========================
-5<->10<->20<->NULL
+5<->10<->20
     ^
 ============================================================
 ← = move to left → = move to right i = insert here d = delete this
@@ -25,15 +25,15 @@ b = back to previous menu q = quit program
 - [Project structure](#project-structure)
 - [API reference](#api-reference)
 - [Design notes](#design-notes)
-- [Roadmap](#roadmap)
 
 ## Features
 
 - **Interactive terminal UI**: keys are read in raw mode, so there's no Enter to press for menu choices. Only numeric prompts, like *Enter Data:*, wait for Enter.
 - **Cursor navigation**: move along the list with `←` / `→`. A `^` marker shows where you are, and you can insert or delete right at the cursor.
+- **Search mode**: find every node matching a value, highlight the matches, and navigate between them to insert around or delete a selected match.
 - **Rich insert and delete operations**: head, tail, by position, before or after a key, first match, all matches, or clear everything.
 - **Forgiving input**: invalid keys and non-numeric input are caught and you're asked again. Out-of-range positions and missing keys report an error instead of crashing.
-- **Cross-platform**: `termios` on Linux and macOS, `conio.h` and the Win32 API on Windows. A single `Makefile` handles both.
+- **Cross-platform terminal support**: `termios` on Linux and macOS, and `conio.h` plus the Win32 API on Windows. The UI uses ANSI escape codes and restores the terminal screen and cursor on exit.
 - **Two list implementations**: a doubly linked list (used by the app) and a singly linked list library.
 
 ## Getting started
@@ -60,9 +60,10 @@ The binary is `./linkedList` (`linkedList.exe` on Windows).
 To build by hand without `make`:
 
 ```bash
-gcc -Wall -Idoubly -Isingly -Iterminal \
+gcc -Wall -Wextra -I. -Idoubly -Isingly -Iterminal \
     linkedList.c cli.c doubly/dllist.c singly/sllist.c \
     terminal/rawMode.c terminal/timer.c terminal/terminalcontrol.c \
+    terminal/terminalconfig.c \
     -o linkedList
 ```
 
@@ -73,7 +74,7 @@ Launch the program and press `c` to create a list. Every screen shows the curren
 Two things worth knowing up front:
 
 - **Positions are 0-indexed.** Position `0` is the head. Giving a position equal to the list's length appends to the end.
-- **Two-key commands have a short window.** For `k` + `a` / `b` / `o`, press the second key within **half a second** of `k`, or the prompt times out and returns to the menu.
+- **Two-key commands have a short window.** For `k` + `a` / `b` / `o` and `i` + `a` / `b` in search mode, press the second key within **half a second** of the first, or the command times out.
 
 `q` quits from any menu, and `b` goes back one level.
 
@@ -137,12 +138,27 @@ The cursor starts on the head. It can also move one step past the last node onto
 | `d` | Delete the node under the cursor (not available on `NULL`) |
 | `b` | Back |
 
+### Search mode
+
+Pressing `s` in the list menu prompts for a value. Matching nodes are enclosed in square brackets, and the cursor starts on the first match.
+
+| Key | Action |
+| --- | ------ |
+| `←` / `→` | Move to the previous or next matching node |
+| `i` then `b` | Insert a value before the selected match |
+| `i` then `a` | Insert a value after the selected match |
+| `d` | Delete the selected matching node |
+| `b` | Leave search mode |
+
+If there are no matching nodes, the app reports that and returns to the previous menu.
+
 ## Project structure
 
 ```
 LearningLinkedList/
-├── linkedList.c        # Entry point: main menu and program loop
-├── cli.c / cli.h       # Menus, prompts, and input handling
+├── linkedList.c        # Entry point: raw-mode setup, then run()
+├── cli.c / cli.h       # Menu state machine, rendering, prompts, and search mode
+├── convention.h        # Shared opStatus codes, menu ids, and arrow-key strings
 ├── doubly/
 │   ├── dllist.c        # Doubly linked list implementation
 │   └── dllist.h
@@ -150,82 +166,71 @@ LearningLinkedList/
 │   ├── sllist.c        # Singly linked list implementation
 │   └── sllist.h
 ├── terminal/
-│   ├── rawMode.c/.h          # Raw keyboard input, arrow keys (Windows + POSIX)
+│   ├── rawMode.c/.h          # Raw single-key input via readB, arrow keys (Windows + POSIX)
 │   ├── timer.c/.h            # Sleep and "key pressed within N ms?" helpers
-│   └── terminalcontrol.c/.h  # Clear screen / clear line via ANSI escapes
+│   ├── terminalcontrol.c/.h  # Clear screen / clear line via ANSI escapes
+│   └── terminalconfig.c/.h   # Terminal setup, width detection, and exit cleanup
 ├── Makefile            # Cross-platform build
 └── .gitignore
 ```
 
 ## API reference
 
-The list logic is separate from the UI, so `doubly/` and `singly/` can be reused on their own.
+The list logic is separate from the UI, so the libraries in `doubly/` and `singly/` can be reused independently. The declarations below are in the respective headers; operations that can fail return an `opStatus` (defined in `convention.h`) and provide results through output parameters.
 
 ### Doubly linked list (`doubly/dllist.h`)
 
-**Types**
+`linkedList` contains `preHead` and `postTail` sentinel links and a `length`. In this header, "`DNode`" means any node type whose first member is an `LNode link`; the link is embedded so traversal and link operations use `LNode *`. Two concrete node types exist:
 
-| Type | Description |
-| ---- | ----------- |
-| `LNode` | The `prev` / `next` links, kept separate from the data |
-| `DNode` | A node: an `LNode link` plus an `int data` |
-| `linkedList` | The list: `preHead` and `postTail` sentinels plus a `length` |
+- `intDNode`: an `LNode link` plus an `int intData` payload (the nodes the app stores)
+- `NADNode`: an `LNode link` plus an `LNode *nodeAddressData` payload ("node address" data, used for search results that point at nodes in the main list)
 
-**Lifecycle and display**
+Payload-specific functions (those with `Int` or `NAD` in the name) must only be used with the matching node type.
 
-| Function | Description | Parameters | Return Type |
-| -------- | ----------- | ---------- |----------- |
-| `createDList()` | Allocate and initialise a list | - | returns a pointer to the list |
-| `initDList(list)` | Initialise one you already have | pointer to the list (`linkedList *list`) that is to be initialized | - |
-| `createDNode(d)` | Allocate a detached node holding `d` | `int d` | returns a pointer to the DNode (`DNode *`) |
-| `displayDList(list)` | Print the list as `1<->2<->3<->NULL` | `linkedList *list` | - |
-| `displayDListWithCursor(list, cur)` | Same, with a `^` marker under `cur` | 1. `linkedList *list`<br>2. pointer to a node that is to be marked with a cursor in the `list` (address has to be passed in the `LNode *` format) | - |
-| `clearList(list)` | Free every node but keep the list | a pointer to a valid, allocated list (`linkedList *`) | - |
-| `freeDList(&list)` | Free every node and the list itself, then set the pointer to the list `NULL` | address of pointer to the list (`linkedList **listadd`) | - |
-| `s2d(head)` | Convert a singly linked list into a new doubly linked list | head pointer of a singly-linked list (`SNode *head`) | returns a pointer to the list converted from the singly-linked list |
+**Lifecycle and lookup**
 
-**Lookup**
+| Function | Description |
+| -------- | ----------- |
+| `createList(&list)` | Allocate and initialize a list; writes it to `linkedList **` |
+| `initList(list)` | Initialize an existing `linkedList` |
+| `createIntDNode(data, &node)` | Allocate a detached `intDNode` |
+| `createNADNode(node, &searchNode)` | Allocate a detached `NADNode` pointing to an existing list node |
+| `dgetByPos(list, pos, &node)` | Find the node at a zero-based position |
+| `dgetByIntKey(list, key, &node)` | Find the first node whose `intData` matches the key |
+| `dgetByIntKeyFrom(list, key, start, &node)` | Find the next matching node starting at `start` |
+| `clearList(list)` | Free all data nodes while keeping the list allocated |
+| `freeList(&list)` | Free the list and set its pointer to `NULL` |
+| `s2d(head, &list)` | Create a doubly linked list from a singly linked list |
 
-| Function | Description | Parameters | Return Type |
-| -------- | ----------- | ---------- | ----------- |
-| `dgetByPos(list, pos)` | traverse through the `list` to reach the node at 0-indexed given position | 1. `linkedList *list`<br>2. `int pos` | returns a pointer to the node (`LNode *`) at the given `pos`ition in the `list`, or `NULL` if the entered `pos`ition was invalid |
-| `dgetByKey(list, key)` | traverse through the `list` to reach the node containing `data` matching with the `key` or print "key not found" otherwise | 1. `linkedList *list`<br>2. `int key` | returns a pointer to the first node (`LNode *`) with `data` matching the given `key` in the `list`, or `NULL` if the entered `key` was invalid |
-| `dgetByKeyFromNode(list, key, start)` | traverse through the `list` to reach the node containing `data` matching with the `key`, starting the traversal from `start` node | 1. `linkedList *list`<br>2. `int key` | returns a pointer to the first node (`LNode *`) with `data` matching the given `key` in the `list` if key was found in the `list` or `NULL` otherwise |
+**Insertion and deletion**
 
-**Insertion**
-
-| Function | Returns | Description |
-| -------- | ------- | ----------- |
-| `appendDList(list, d)` | – | Inserts a new node at the end of the list |
-| `dinsertAtHead(list, d)` | – | Inserts a new node at the start of the list |
-| `dinsertAtPos(list, d, pos)` | `int`(0 on failure(if the `pos` was invalid), 1 on success) | Insert at `pos` (pos has to be 0-indexed(valid position = [0, `length`])) |
-| `dinsertAfterKey(list, d, key)` | `int`(0 on failure, 1 on success) | Insert after the first node holding `key` |
-| `dinsertBeforeKey(list, d, key)` | `int`(0 on failure, 1 on success) | Insert before the first node holding `key` |
-| `insertDNode(list, priorNode, inserteeNode)` | – | Low-level: insert a precreated `DNode` in after `priorNode` |
-
-**Deletion**
-
-| Function | Returns | Description |
-| -------- | ------- | ----------- |
-| `ddeleteHead(list)` | – | Remove the first `DNode` from the `list` |
-| `ddeleteTail(list)` | – | Remove the last `DNode` from the `list` |
-| `ddeleteAtPos(list, pos)` | `int`(0 on failure, 1 on success) | Remove the `DNode` at `pos` |
-| `ddeleteTheKey(list, key)` | `int`(0 on failure, 1 on success) | Remove the first `DNode` holding `key` in the `list` |
-| `ddeleteAllKey(list, key)` | `int`(0 on failure, 1 on success) | Remove every `DNode` holding `key` in the `list` |
-| `deleteDNode(list, node)` | – | Low-level: unlink and free one node |
+| Function | Description |
+| -------- | ----------- |
+| `appendIntDList(list, data)`, `dinsertIntAtHead(list, data)` | Insert at the tail or head |
+| `dinsertIntAtPos(list, data, pos)` | Insert at a zero-based position from `0` through `length` |
+| `dinsertIntAfterKey(list, data, key)`, `dinsertIntBeforeKey(list, data, key)` | Insert relative to the first matching key |
+| `insertDNode(list, priorNode, node)` | Low-level link operation: insert a preallocated node after `priorNode` |
+| `ddeleteHead(list)`, `ddeleteTail(list)` | Delete the head or tail node |
+| `ddeleteAtPos(list, pos)` | Delete the node at a zero-based position |
+| `ddeleteTheIntKey(list, key)`, `ddeleteAllIntKey(list, key)` | Delete the first or all nodes matching a key |
+| `deleteDNode(list, node)` | Low-level unlink-and-free operation |
 
 ### Singly linked list (`singly/sllist.h`)
 
-A pointer-to-head API (`SNode **headadd`) so operations on the head can update the caller's pointer. Core functions include `createSNode`, `printSNode`, `insertSNode`, `deleteSNode` , `getTail`, `getByPos`, `getByKey`, `getPriorToTail`,  `getPriorToKey`, `freeSNode`. Other functions `sinsertAtHead`, `appendSNode`, `sinsertAtPos`, `sinsertAfterKey`, `sinsertBeforeKey`, `sdeleteAtHead`, `sdeleteAtTail`, `sdeleteAtPos`, `sdeleteTheKey` and `sdeleteAllKey`.<br>(`insertSNode` expects `NULL` as the second argument (SNode *precedorNode) for head insertion).<br>
-(`getByPos`, `getByKey` returns a pointer to `NULL` if a empty SList is passed to it).<br>
-(`getPriorToTail` and `getPriorToKey` returns a pointer to `NULL` for a empty SList and single-node SList).<br>
-(Return type of `deleteSNode` is `int`. It returns 0 when the deletion doesn't occurs(if the list passed was empty) and 1 on successful deletion).<br>
-(`sinsertAtPos` returns 0 for negative `pos`, returns 1 on success. It appends the `newNode` at the end of the list silently if the `pos` passed was more equal or more than the length).<br>
-(`sinsertAfterKey` and `sinsertBeforeKey` returns 0 if the list passed was empty or if the key was found, and returns 1 on successful insertion).<br>
-(`sdeleteAtHead`, `sdeleteAtTail`, `sdeleteAtPos`, `sdeleteTheKey` returns `int` 1 on success and 0 on failure).<br>
+A pointer-to-head API (`SNode **headadd`) lets operations update the caller's head pointer. Allocation, lookup, insertion, and deletion functions return `opStatus`; lookup functions write results through output parameters. The API includes:
+
+- Creation and cleanup: `createSNode`, `freeSNode`
+- Link operations: `insertSNode`, `deleteSNode`
+- Lookup: `getTail`, `getByPos`, `getByKey`, `getPriorToTail`, `getPriorToKey`
+- Insertion: `appendSNode`, `sinsertAtHead`, `sinsertAtPos`, `sinsertAfterKey`, `sinsertBeforeKey`
+- Deletion: `sdeleteAtHead`, `sdeleteAtTail`, `sdeleteAtPos`, `sdeleteTheKey`, `sdeleteAllKey`
+
+Positions are zero-based. Check each returned `opStatus` for success or an error such as an invalid position, missing key, or allocation failure.
+
 ## Design notes
 
 - **Sentinel nodes.** The doubly linked list keeps `preHead` and `postTail` inside the list struct. Because those two nodes always exist, inserting at the head or tail and deleting the first or last node need no special cases for an empty list or a `NULL` neighbour.
-- **Constant-time head and tail inserts.** With sentinels, `appendDList` is just "insert after `postTail.prev`", so there is no walk to the end. The singly linked list has no tail pointer, so its `appendSNode` has to traverse the whole list first (`getTail`).
-- **Links embedded in the node.** `DNode` starts with an `LNode`, so a `DNode *` and an `LNode *` point at the same address and the link-manipulating code (`insertDNode`, `deleteDNode`) works on plain `LNode`s without knowing about the data.
-- **Terminal input in raw mode.** `rawMode.c` switches the terminal out of line-buffered mode to read single keys, and translates arrow-key escape sequences into the codes `300` (left) and `400` (right). The Windows and POSIX versions live side by side behind `#ifdef _WIN32`.
+- **Constant-time head and tail inserts.** With sentinels, `appendIntDList` is just "insert after `postTail.prev`", so there is no walk to the end. The singly linked list has no tail pointer, so its `appendSNode` has to traverse the whole list first (`getTail`).
+- **Links embedded in the node.** Every node type (`intDNode`, `NADNode`) starts with an `LNode`, so a pointer to the node and an `LNode *` point at the same address, and the link-manipulating code (`insertDNode`, `deleteDNode`) works on plain `LNode`s without knowing about the payload. This is what lets one list type hold either integers or search-result addresses.
+- **Terminal input in raw mode.** `rawMode.c` switches the terminal out of line-buffered mode to read single keys with `readB`, which writes the key into a short string. Arrow-key escape sequences are translated into the UTF-8 strings `LEFT_ARROW_CHAR` and `RIGHT_ARROW_CHAR` from `convention.h`. On POSIX, a lone `ESC` is told apart from the start of an escape sequence by waiting 50 ms (`msTimeoutC`) for more bytes. The Windows and POSIX versions live side by side behind `#ifdef _WIN32`.
+- **Terminal setup and cleanup.** `terminalconfig.c` enables UTF-8 output on Windows, detects the terminal width, enters the alternate screen, and restores the screen and cursor when the program exits.
