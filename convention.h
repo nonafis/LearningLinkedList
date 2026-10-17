@@ -34,34 +34,14 @@ typedef enum
     NAVIGATION_MENU,
     SEARCH_MENU,
     SEARCH_INSERT_SUBMENU,
+    SEARCH_DELETE_SUBMENU,
     BACK
 } menu;
 
-// typedef enum
-// {
-//     NO_ACTION,
-//     QUIT,
-//     CREATE_LIST,
-//     DELETE_LIST,
-//     OPEN_NM,
-//     OPEN_IM,
-//     OPEN_DM,
-//     OPEN_SM,
-//     BACK,
-//     HEAD_INSERT,
-//     TAIL_INSERT,
-//     POS_INSERT,
-//     AKEY_INSERT,
-//     BKEY_INSERT,
-//     HEAD_DELETE,
-//     TAIL_DELETE,
-//     POS_DELETE,
-//     OKEY_DELETE,
-//     AKEY_DELETE,
-//     DELETE_ALL_NODE,
-//     MOVE_LEFT_CURSOR,
-//     MOVE_RIGHT_CURSOR,
-//     INSERT,
-//     DELETE,
-// } actionId;
+typedef enum
+{
+    BEFORE,
+    ITSELF,
+    AFTER
+} WRTC; //where relative to cursor
 #endif
