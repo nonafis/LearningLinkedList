@@ -84,14 +84,19 @@ static void allKeyDelAction(state *Stateadd);
 static void delAllNodeAction(state *Stateadd);
 static void moveCursorLeftAction(state *Stateadd);
 static void moveCursorRightAction(state *Stateadd);
-static void insertAction(state *Stateadd);
-static void deleteAction(state *Stateadd);
+static void navInsertAction(state *Stateadd);
+static void navDeleteAction(state *Stateadd);
 static void buildHNListAction(state *Stateadd);
 static void insertBeforeAction(state *Stateadd);
 static void insertAfterAction(state *Stateadd);
+static void searchDelBeforeAction(state *Stateadd);
+static void searchDelItselfAction(state *Stateadd);
+static void searchDelAfterAction(state *Stateadd);
 
 static bool notOnLeftEdgeCondition(state State);
 static bool notOnRightEdgeCondition(state State);
+static bool thereIsANodeToLeft(state State);
+static bool thereIsANodeToRight(state State);
 //--------------------------------------------------------------------------------
 
 //-----------------------------------i/o func-------------------------------------
@@ -268,8 +273,8 @@ static button deletionMenuButtons[] = {
 static button navigationMenuButtons[] = {
     {.character = LEFT_ARROW_CHAR, .label = "move to left", .action = moveCursorLeftAction, .buttonConditon = notOnLeftEdgeCondition},
     {.character = RIGHT_ARROW_CHAR, .label = "move to right", .action = moveCursorRightAction, .buttonConditon = notOnRightEdgeCondition},
-    {.character = "i", .label = "insert here", .action = insertAction},
-    {.character = "d", .label = "delete this", .action = deleteAction, .buttonConditon = notOnRightEdgeCondition},
+    {.character = "i", .label = "insert here", .action = navInsertAction},
+    {.character = "d", .label = "delete this", .action = navDeleteAction, .buttonConditon = notOnRightEdgeCondition},
     {.character = "b", .label = "back to previous menu", .nextMenu = BACK},
     {.character = "q", .label = "quit program", .action = quitAction},
     {.character = NULL, .action = invalidInputAction}};
@@ -277,12 +282,19 @@ static button searchInsertSubmenuButtons[] = {
     {.character = "ib", .label = "insert before this", .action = insertBeforeAction},
     {.character = "ia", .label = "insert after this", .action = insertAfterAction},
     {.character = NULL, .label = NULL}};
+static button searchDeleteSubmenuButtons[] = {
+    {.character = "db", .label = "delete the node before this", .action = searchDelBeforeAction, .buttonConditon = thereIsANodeToLeft},
+    {.character = "dt", .label = "delete this node", .action = searchDelItselfAction},
+    {.character = "da", .label = "delete the node after this", .action = searchDelAfterAction, .buttonConditon = thereIsANodeToRight},
+    {.character = NULL, .label = NULL}};
 static button searchMenuButtons[] = {
     {.character = LEFT_ARROW_CHAR, .label = "move to the previous matching node", .action = moveCursorLeftAction, .buttonConditon = notOnLeftEdgeCondition},
     {.character = RIGHT_ARROW_CHAR, .label = "move to the next matching node", .action = moveCursorRightAction, .buttonConditon = notOnRightEdgeCondition},
-    {.character = "ib", .label = "insert before this", .action = prefixAction, .nextMenu = SEARCH_INSERT_SUBMENU},
-    {.character = "ia", .label = "insert after this", .action = prefixAction, .nextMenu = SEARCH_INSERT_SUBMENU},
-    {.character = "d", .label = "delete this", .action = deleteAction},
+    {.character = "ib", .label = "insert before this node", .action = prefixAction, .nextMenu = SEARCH_INSERT_SUBMENU},
+    {.character = "ia", .label = "insert after this node", .action = prefixAction, .nextMenu = SEARCH_INSERT_SUBMENU},
+    {.character = "db", .label = "delete the node before this", .action = prefixAction, .nextMenu = SEARCH_DELETE_SUBMENU, .buttonConditon = thereIsANodeToLeft},
+    {.character = "dt", .label = "delete this node", .action = prefixAction, .nextMenu = SEARCH_DELETE_SUBMENU},
+    {.character = "da", .label = "delete the node after this", .action = prefixAction, .nextMenu = SEARCH_DELETE_SUBMENU, .buttonConditon = thereIsANodeToRight},
     {.character = "b", .label = "back to previous menu", .nextMenu = BACK},
     {.character = "q", .label = "quit program", .action = quitAction},
     {.character = NULL, .action = invalidInputAction}};
@@ -297,7 +309,8 @@ static button *menus[] = {
     [KEY_DELETE_SUBMENU] = keyDeleteSubmenuButtons,
     [NAVIGATION_MENU] = navigationMenuButtons,
     [SEARCH_MENU] = searchMenuButtons,
-    [SEARCH_INSERT_SUBMENU] = searchInsertSubmenuButtons};
+    [SEARCH_INSERT_SUBMENU] = searchInsertSubmenuButtons,
+    [SEARCH_DELETE_SUBMENU] = searchDeleteSubmenuButtons};
 
 //======================================================================================================
 
@@ -612,7 +625,6 @@ static void allKeyDelAction(state *Stateadd)
 static void delAllNodeAction(state *Stateadd)
 {
     clearList(Stateadd->list);
-    // Stateadd->currentMenu = EMPTY_LIST_MENU;
 }
 static void moveCursorLeftAction(state *Stateadd)
 {
@@ -622,7 +634,7 @@ static void moveCursorRightAction(state *Stateadd)
 {
     Stateadd->cursoredNode = Stateadd->cursoredNode->next;
 }
-static void insertAction(state *Stateadd)
+static void navInsertAction(state *Stateadd)
 {
     intDNode *newNode;
     int data;
@@ -638,32 +650,22 @@ static void insertAction(state *Stateadd)
     insertDNode(Stateadd->list, Stateadd->cursoredNode->prev, &(newNode->link));
     Stateadd->cursoredNode = Stateadd->cursoredNode->prev;
 }
-static void deleteAction(state *Stateadd)
+static void navDeleteAction(state *Stateadd)
 {
-    linkedList *cursoredList = Stateadd->HNList ? Stateadd->HNList : Stateadd->list;
     Stateadd->cursoredNode = Stateadd->cursoredNode->prev;
-    LNode *deadNode = Stateadd->HNList ? ((NADNode *)(Stateadd->cursoredNode->next))->nodeAddressData : Stateadd->cursoredNode->next;
-    deleteDNode(Stateadd->list, deadNode);
-    if (Stateadd->HNList)
-    {
-        deleteDNode(Stateadd->HNList, Stateadd->cursoredNode->next);
-    }
-    if (Stateadd->cursoredNode->next != &(cursoredList->postTail))
+    deleteDNode(Stateadd->list, Stateadd->cursoredNode->next);
+    if (Stateadd->cursoredNode->next != &(Stateadd->list->postTail))
     {
         Stateadd->cursoredNode = Stateadd->cursoredNode->next;
     }
-    else if (Stateadd->cursoredNode == &(cursoredList->preHead))
+    else if (Stateadd->cursoredNode == &(Stateadd->list->preHead))
     {
         Stateadd->cursoredNode = NULL;
-        if (Stateadd->HNList && !(Stateadd->HNList->length))
-        {
-            freeList(&(Stateadd->HNList));
-        }
     }
 }
 static void buildHNListAction(state *Stateadd)
 {
-    //prompt the user
+    // prompt the user
     int searchfor;
     if (getInput("Search for:", &searchfor) != OP_SUCCESS)
     {
@@ -704,53 +706,108 @@ static void buildHNListAction(state *Stateadd)
     }
     //================================================================
 }
-static void insertBeforeAction(state *Stateadd)
+// generic helper for insertion in search menu, to save from repeating similar logic
+static void searchInsertAction(state *Stateadd, WRTC wrtc)
 {
+    LNode *priorIntDNode = NULL, *priorNADNode = NULL;
+    if (wrtc == BEFORE)
+    {
+        priorIntDNode = ((NADNode *)(Stateadd->cursoredNode))->nodeAddressData->prev;
+        priorNADNode = Stateadd->cursoredNode->prev;
+    }
+    if (wrtc == AFTER)
+    {
+        priorIntDNode = ((NADNode *)(Stateadd->cursoredNode))->nodeAddressData;
+        priorNADNode = Stateadd->cursoredNode;
+    }
     int data;
     if (getInput("Enter data:", &data) != OP_SUCCESS)
     {
         return;
     }
-    intDNode *newDNode;
-    if (reportOpError(createIntDNode(data, &newDNode), *Stateadd))
+    intDNode *newIntDNode;
+    if (reportOpError(createIntDNode(data, &newIntDNode), *Stateadd))
     {
         return;
     }
-    insertDNode(Stateadd->list, ((NADNode *)(Stateadd->cursoredNode))->nodeAddressData->prev, &(newDNode->link));
+    insertDNode(Stateadd->list, priorIntDNode, &(newIntDNode->link));
     if (data == ((intDNode *)(((NADNode *)(Stateadd->cursoredNode))->nodeAddressData))->intData)
     {
-        NADNode *newNANode;
-        if (reportOpError(createNADNode(&(newDNode->link), &newNANode), *Stateadd))
+        NADNode *newNADNode;
+        if (reportOpError(createNADNode(&(newIntDNode->link), &newNADNode), *Stateadd))
         {
-            deleteDNode(Stateadd->list, &(newDNode->link));
+            deleteDNode(Stateadd->list, &(newIntDNode->link));
             return;
         }
-        insertDNode(Stateadd->HNList, Stateadd->cursoredNode->prev, &(newNANode->link));
+        insertDNode(Stateadd->HNList, priorNADNode, &(newNADNode->link));
     }
 }
-static void insertAfterAction(state *Stateadd)
+//
+static inline void insertBeforeAction(state *Stateadd)
 {
-    int data;
-    if (getInput("Enter data:", &data) != OP_SUCCESS)
+    searchInsertAction(Stateadd, BEFORE);
+}
+static inline void insertAfterAction(state *Stateadd)
+{
+    searchInsertAction(Stateadd, AFTER);
+}
+// generic helper for deletion in search menu, to save from repeating similar logic
+static void searchDeleteAction(state *Stateadd, WRTC wrtc)
+{
+    LNode *deadNode = NULL;
+    if (wrtc == BEFORE)
     {
-        return;
-    }
-    intDNode *newDNode;
-    if (reportOpError(createIntDNode(data, &newDNode), *Stateadd))
-    {
-        return;
-    }
-    insertDNode(Stateadd->list, ((NADNode *)(Stateadd->cursoredNode))->nodeAddressData, &(newDNode->link));
-    if (data == ((intDNode *)(((NADNode *)(Stateadd->cursoredNode))->nodeAddressData))->intData)
-    {
-        NADNode *newNANode;
-        if (reportOpError(createNADNode(&(newDNode->link), &newNANode), *Stateadd))
+        deadNode = ((NADNode *)(Stateadd->cursoredNode))->nodeAddressData->prev;
+        LNode *neighbouringNADNode = Stateadd->cursoredNode->prev;
+        if (neighbouringNADNode != &(Stateadd->HNList->preHead) && ((NADNode *)neighbouringNADNode)->nodeAddressData == deadNode)
         {
-            deleteDNode(Stateadd->list, &(newDNode->link));
-            return;
+            deleteDNode(Stateadd->HNList, neighbouringNADNode);
         }
-        insertDNode(Stateadd->HNList, Stateadd->cursoredNode, &(newNANode->link));
     }
+    if (wrtc == ITSELF)
+    {
+        deadNode = ((NADNode *)(Stateadd->cursoredNode))->nodeAddressData;
+    }
+    if (wrtc == AFTER)
+    {
+        deadNode = ((NADNode *)(Stateadd->cursoredNode))->nodeAddressData->next;
+        LNode *neighbouringNADNode = Stateadd->cursoredNode->next;
+        if (neighbouringNADNode != &(Stateadd->HNList->postTail) && ((NADNode *)neighbouringNADNode)->nodeAddressData == deadNode)
+        {
+            deleteDNode(Stateadd->HNList, neighbouringNADNode);
+        }
+    }
+    deleteDNode(Stateadd->list, deadNode);
+    if (wrtc == ITSELF)
+    {
+        Stateadd->cursoredNode = Stateadd->cursoredNode->prev;
+        deleteDNode(Stateadd->HNList, Stateadd->cursoredNode->next);
+        if (Stateadd->cursoredNode == &(Stateadd->HNList->preHead))
+        {
+            if (Stateadd->cursoredNode->next != &(Stateadd->HNList->postTail))
+            {
+                Stateadd->cursoredNode = Stateadd->cursoredNode->next;
+            }
+            else
+            {
+                Stateadd->cursoredNode = NULL;
+                freeList(&(Stateadd->HNList));
+            }
+        }
+    }
+}
+//
+static inline void searchDelBeforeAction(state *Stateadd)
+{
+    searchDeleteAction(Stateadd, BEFORE);
+}
+static inline void searchDelItselfAction(state *Stateadd)
+{
+    searchDeleteAction(Stateadd, ITSELF);
+}
+static inline void searchDelAfterAction(state *Stateadd)
+{
+    searchDeleteAction(Stateadd, AFTER);
 }
 //--------------------------------------------------------
 
@@ -765,6 +822,17 @@ static bool notOnRightEdgeCondition(state State)
     LNode *nodeToCheck = State.HNList ? State.HNList->postTail.prev : &(State.list->postTail);
     return State.cursoredNode != nodeToCheck;
 }
+static bool thereIsANodeToLeft(state State) // must have a valid cursor (S.cN != NULL)
+{
+    LNode *relativeTo = State.HNList ? ((NADNode *)(State.cursoredNode))->nodeAddressData : State.cursoredNode;
+    return relativeTo->prev != &(State.list->preHead);
+}
+static bool thereIsANodeToRight(state State)
+{
+    LNode *relativeTo = State.HNList ? ((NADNode *)(State.cursoredNode))->nodeAddressData : State.cursoredNode;
+    return relativeTo->next != &(State.list->postTail);
+}
+
 //-------------------------------------------------------------
 
 //--------------------------helper function-------------------------------
@@ -824,7 +892,7 @@ static void onEnter(state *Stateadd)
         break;
     case SEARCH_MENU:
         Stateadd->cursoredNode = Stateadd->HNList->preHead.next;
-    break;
+        break;
     default:
         break;
     }
@@ -832,7 +900,7 @@ static void onEnter(state *Stateadd)
 
 static void onExit(state *Stateadd)
 {
-    switch (Stateadd->currentMenu) //exiting to MM's clean up is already done at deleteListAction
+    switch (Stateadd->currentMenu) // exiting to MM's clean up is already done at deleteListAction
     {
     case NAVIGATION_MENU:
         Stateadd->cursoredNode = NULL;
@@ -891,7 +959,7 @@ void run()
         /*------------------------------------------------------------------------------------------------*/
 
         //-------------------------------------------changemenu---------------------------------------------
-        if (State.list == NULL) //the very first piece, order matters. takes care of if the createListAction couldnt make a list, or if deleteListAction was run in takeAction(which unwinding to MAIN_MENU, must not do push mechanism as done with others .nextMenu)
+        if (State.list == NULL) // the very first piece, order matters. takes care of if the createListAction couldnt make a list, or if deleteListAction was run in takeAction(which unwinding to MAIN_MENU, must not do push mechanism as done with others .nextMenu)
         {
             while (currentDepth != 0)
             {
@@ -899,7 +967,7 @@ void run()
             }
             State.currentMenu = MAIN_MENU;
         }
-        else if (State.HNList == NULL) //takes care of if HNList became empty coz of some action in SEARCH_MENU(deletion of the last match), or if the HNList couldnt be made coz it found no matching node at the time of entering the SM it refuses the entry to SM, or else if it was not meant to enter SM to begin with, it will simply just do nothing.
+        else if (State.HNList == NULL) // takes care of if HNList became empty coz of some action in SEARCH_MENU(deletion of the last match), or if the HNList couldnt be made coz it found no matching node at the time of entering the SM it refuses the entry to SM, or else if it was not meant to enter SM to begin with, it will simply just do nothing.
         {
             if (State.currentMenu == SEARCH_MENU && matchedButton->nextMenu != BACK)
             {
@@ -911,9 +979,9 @@ void run()
                 continue;
             }
         }
-        if (State.list != NULL && matchedButton->nextMenu != BASE) //makes sure a list exists first of all and .nextMenu has been set explicitly. it takes care of back mechanism and descending to some menu.
+        if (State.list != NULL && matchedButton->nextMenu != BASE) // makes sure a list exists first of all and .nextMenu has been set explicitly. it takes care of back mechanism and descending to some menu.
         {
-            if (matchedButton->nextMenu == BACK) //if it was not ELM, runs menu specific cleanup then pops and sets the currentMenu. only if it was ELM and successful insertion (through 'a' button), it re-enter(back+onEnter setup) the parent menu.
+            if (matchedButton->nextMenu == BACK) // if it was not ELM, runs menu specific cleanup then pops and sets the currentMenu. only if it was ELM and successful insertion (through 'a' button), it re-enter(back+onEnter setup) the parent menu.
             {
                 int wasELM = State.currentMenu == EMPTY_LIST_MENU ? 1 : 0;
                 if (!wasELM || State.list->length > 0)
@@ -926,14 +994,14 @@ void run()
                     }
                 }
             }
-            else if (!reportOpError(push(State.currentMenu), State)) //pushes the parent menu to history onlt then sets the currentMenu and runs its onEnter setup
+            else if (!reportOpError(push(State.currentMenu), State)) // pushes the parent menu to history onlt then sets the currentMenu and runs its onEnter setup
             {
                 State.currentMenu = matchedButton->nextMenu;
                 onEnter(&State);
             }
         }
-        if (State.list != NULL && State.list->length == 0 && State.currentMenu != EMPTY_LIST_MENU) //makes sure there exists a list, it is empty and CM is not already ELM. last piece, order matters, so that it can push its right parent to the menuHistory.
-        { 
+        if (State.list != NULL && State.list->length == 0 && State.currentMenu != EMPTY_LIST_MENU) // makes sure there exists a list, it is empty and CM is not already ELM. last piece, order matters, so that it can push its right parent to the menuHistory.
+        {
             if (!reportOpError(push(State.currentMenu), State))
             {
                 State.currentMenu = EMPTY_LIST_MENU;
