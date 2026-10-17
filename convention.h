@@ -33,7 +33,8 @@ typedef enum
     KEY_DELETE_SUBMENU,
     NAVIGATION_MENU,
     SEARCH_MENU,
-    SEARCH_INSERT_SUBMENU
+    SEARCH_INSERT_SUBMENU,
+    BACK
 } menu;
 
 // typedef enum
