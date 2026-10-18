@@ -160,7 +160,7 @@ static void invalidInputAction(state *Stateadd)
     (void)Stateadd;
     printf("Invalid input!\n");
     fflush(stdout);
-    timer(5);
+    timeoutC(5);
     clearLine();
 }
 
@@ -198,6 +198,7 @@ static int reportOpError(opStatus s, state State)
     default:
         printf("Something went wrong :|\n");
     }
+    fflush(stdout);
     timer(15);
     return 1;
 }
@@ -1013,6 +1014,7 @@ static void onExit(state *Stateadd)
 
 void run()
 {
+    setvbuf(stdout, NULL, _IOFBF, 1 << 16);
     state State;
     // === initState ===
     State.list = NULL;
