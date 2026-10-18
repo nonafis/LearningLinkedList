@@ -1031,6 +1031,31 @@ void run()
         printList(State);
         printSepLine(State);
         printButtons(State);
+        fflush(stdout);
+        /*------------------------------------------------------------------------------------------------*/
+
+        //-------------------------------report nodesInserted and undo on [Z}-------------------------------
+        if (State.nodesInserted > 0 && State.insertedWhere != NULL)
+        {
+            printf("%d %s inserted successfully. Press [z] to undo.\n", State.nodesInserted, State.nodesInserted > 1 ? "nodes" : "node");
+            fflush(stdout);
+            char undo[4];
+            if (timeoutC(15) > 0)
+            {
+                readB(undo);
+                if (strcmp(undo, "z") == 0)
+                {
+                    State.insertedWhere = State.insertedWhere->prev;
+                    for (int i = 0; i < State.nodesInserted; i++)
+                    {
+                        deleteDNode(State.list, State.insertedWhere->next);
+                    }
+                }
+            }
+            State.nodesInserted = 0;
+            State.insertedWhere = NULL;
+            continue;
+        }
         /*------------------------------------------------------------------------------------------------*/
 
         //-------------------------------------------readbutton---------------------------------------------
