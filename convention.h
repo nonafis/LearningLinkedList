@@ -35,6 +35,7 @@ typedef enum
     SEARCH_MENU,
     SEARCH_INSERT_SUBMENU,
     SEARCH_DELETE_SUBMENU,
+    MASS_INSERTION_MENU,
     BACK
 } menu;
 
