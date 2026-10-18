@@ -97,11 +97,13 @@ static void searchDelAfterAction(state *Stateadd);
 static void massHeadInsAction(state *Stateadd);
 static void massTailInsAction(state *Stateadd);
 static void massPosInsAction(state *Stateadd);
+static void reverseListAction(state *Stateadd);
 
 static bool notOnLeftEdgeCondition(state State);
 static bool notOnRightEdgeCondition(state State);
 static bool thereIsANodeToLeft(state State);
 static bool thereIsANodeToRight(state State);
+static bool isNotSingleNodeList(state State);
 //--------------------------------------------------------------------------------
 
 //-----------------------------------i/o func-------------------------------------
@@ -174,6 +176,9 @@ static int reportOpError(opStatus s, state State)
     case OP_ALLOC_FAILED:
         printf("Allocation Failed.\n");
         break;
+    case OP_ERROR_INVALID_ARG:
+        printf("Invalid argument passed to the function.\n");
+        break;
     case OP_ERROR_INVALID_INPUT:
         printf("Invalid Input.\n");
         break;
@@ -185,6 +190,9 @@ static int reportOpError(opStatus s, state State)
         break;
     case OP_ERROR_KEY_NOT_FOUND:
         printf("Key not found.\n");
+        break;
+    case OP_ERROR_EMPTY_LIST:
+        printf("This operation cannot be done on an empty list.\n");
         break;
     case OP_ERROR_STACK_OVERFLOW:
         printf("Stack overflowed.\n");
@@ -250,6 +258,7 @@ static button isListMenuButtons[] = {
     {.character = "d", .label = "deletion menu", .nextMenu = DELETION_MENU},
     {.character = "s", .label = "search menu", .action = buildHNListAction, .nextMenu = SEARCH_MENU},
     {.character = "m", .label = "mass insertion menu", .nextMenu = MASS_INSERTION_MENU},
+    {.character = "r", .label = "reverse the list", .action = reverseListAction, .buttonConditon = isNotSingleNodeList},
     {.character = "f", .label = "delete list", .action = deleteListAction},
     {.character = "q", .label = "quit program", .action = quitAction},
     {.character = NULL, .action = invalidInputAction}};
@@ -905,6 +914,10 @@ static inline void searchDelAfterAction(state *Stateadd)
 {
     searchDeleteAction(Stateadd, AFTER);
 }
+static void reverseListAction(state *Stateadd)
+{
+    reportOpError(reverseList(Stateadd->list), *Stateadd);
+}
 //--------------------------------------------------------
 
 //-------------conditional button's condition----------------
@@ -927,6 +940,10 @@ static bool thereIsANodeToRight(state State)
 {
     LNode *relativeTo = State.HNList ? ((NADNode *)(State.cursoredNode))->nodeAddressData : State.cursoredNode;
     return relativeTo->next != &(State.list->postTail);
+}
+static bool isNotSingleNodeList(state State) //call when list != NULL
+{
+    return State.list->length != 1;
 }
 
 //-------------------------------------------------------------
