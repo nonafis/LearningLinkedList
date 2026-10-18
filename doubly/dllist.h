@@ -57,6 +57,8 @@ opStatus ddeleteAtPos(linkedList *list, int pos);
 opStatus ddeleteTheIntKey(linkedList *list, int key);
 opStatus ddeleteAllIntKey(linkedList *list, int key);
 
+opStatus reverseList(linkedList *list);
+
 void clearList(linkedList *list);
 void freeList(linkedList **listadd);
 

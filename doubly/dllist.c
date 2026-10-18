@@ -56,9 +56,9 @@ opStatus dgetByPos(linkedList *list, int pos, LNode **posNodeadd)
     }
     if (pos >= list->length)
     {
-        return OP_ERROR_OUT_OF_RANGE_POSITION; 
-    } //negative position are invalid anyways, but for empty list non negative position are invalid too. maybe I can add a check for list->length == 0 right at the top to pass OP_ERROR_EMPTY_LIST
-    *posNodeadd = list->preHead.next;   
+        return OP_ERROR_OUT_OF_RANGE_POSITION;
+    } // negative position are invalid anyways, but for empty list non negative position are invalid too. maybe I can add a check for list->length == 0 right at the top to pass OP_ERROR_EMPTY_LIST
+    *posNodeadd = list->preHead.next;
     for (int i = 0; (i < pos); i++)
     {
         (*posNodeadd) = (*posNodeadd)->next;
@@ -234,10 +234,40 @@ opStatus ddeleteAllIntKey(linkedList *list, int key)
     LNode *deadNode; // this uses two pointer to keep track of matching node so that it can continue scanning from the last deleted node
     while (s == OP_SUCCESS)
     {
-        deadNode = cur;                                // save the current matching node in the deadNode
+        deadNode = cur;                                   // save the current matching node in the deadNode
         s = dgetByIntKeyFrom(list, key, cur->next, &cur); // this can only work(continue from after matching node) coz the matching node has not been deleted yet //, although there could have been another that will not need two LNode ptrs that is setting the cur to cur->prev before deleting then delete the cur->next and then continue from cur->next.
         deleteDNode(list, deadNode);
     }
+    return OP_SUCCESS;
+}
+
+opStatus reverseList(linkedList *list)
+{
+    if (!list)
+    {
+        return OP_ERROR_INVALID_ARG;
+    }
+    LNode *current, *oldHead;
+    oldHead = current = list->preHead.next;
+    if (oldHead == &(list->postTail))
+    {
+        return OP_ERROR_EMPTY_LIST;
+    }
+    else if (oldHead->next == &(list->postTail))
+    {
+        return OP_SUCCESS;
+    }
+    while (current != &(list->postTail))
+    {
+        LNode *next = current->next;
+        current->next = current->prev;
+        current->prev = next;
+        current = next;
+    }
+    list->preHead.next = list->postTail.prev;
+    list->preHead.next->prev = &(list->preHead);
+    list->postTail.prev = oldHead;
+    oldHead->next = &(list->postTail);
     return OP_SUCCESS;
 }
 
@@ -247,7 +277,7 @@ void clearList(linkedList *list)
     {
         return;
     }
-    while (ddeleteHead(list) == OP_SUCCESS) //keep deleting at head until the list becomes empty which will the condition false itself
+    while (ddeleteHead(list) == OP_SUCCESS) // keep deleting at head until the list becomes empty which will the condition false itself
         ;
 }
 
