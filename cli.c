@@ -46,6 +46,8 @@ typedef struct state
     linkedList *list;
     menu currentMenu;
     int skipchar;
+    int nodesInserted;
+    LNode *insertedWhere;
     int terminalWidth;
     bool quit;
     LNode *cursoredNode;
@@ -92,6 +94,9 @@ static void insertAfterAction(state *Stateadd);
 static void searchDelBeforeAction(state *Stateadd);
 static void searchDelItselfAction(state *Stateadd);
 static void searchDelAfterAction(state *Stateadd);
+static void massHeadInsAction(state *Stateadd);
+static void massTailInsAction(state *Stateadd);
+static void massPosInsAction(state *Stateadd);
 
 static bool notOnLeftEdgeCondition(state State);
 static bool notOnRightEdgeCondition(state State);
@@ -138,6 +143,7 @@ static opStatus getInput(const char *string, int *intadd)
             fflush(stdout);
             timer(10);
             printf("\0338\x1b[J");
+            // fflush(stdout);
         }
         else
         {
@@ -167,6 +173,9 @@ static int reportOpError(opStatus s, state State)
     {
     case OP_ALLOC_FAILED:
         printf("Allocation Failed.\n");
+        break;
+    case OP_ERROR_INVALID_INPUT:
+        printf("Invalid Input.\n");
         break;
     case OP_ERROR_NEGATIVE_POSITION:
         printf("Position can't be negative!\n");
@@ -239,6 +248,7 @@ static button isListMenuButtons[] = {
     {.character = "i", .label = "insertion menu", .nextMenu = INSERTION_MENU},
     {.character = "d", .label = "deletion menu", .nextMenu = DELETION_MENU},
     {.character = "s", .label = "search menu", .action = buildHNListAction, .nextMenu = SEARCH_MENU},
+    {.character = "m", .label = "mass insertion menu", .nextMenu = MASS_INSERTION_MENU},
     {.character = "f", .label = "delete list", .action = deleteListAction},
     {.character = "q", .label = "quit program", .action = quitAction},
     {.character = NULL, .action = invalidInputAction}};
@@ -298,6 +308,13 @@ static button searchMenuButtons[] = {
     {.character = "b", .label = "back to previous menu", .nextMenu = BACK},
     {.character = "q", .label = "quit program", .action = quitAction},
     {.character = NULL, .action = invalidInputAction}};
+static button massInsertionMenuButtons[] = {
+    {.character = "h", .label = "insert many nodes at head", .action = massHeadInsAction},
+    {.character = "t", .label = "insert many nodes at tail", .action = massTailInsAction},
+    {.character = "p", .label = "insert many nodes at pos", .action = massPosInsAction},
+    {.character = "b", .label = "back to previous menu", .nextMenu = BACK},
+    {.character = "q", .label = "quit program", .action = quitAction},
+    {.character = NULL, .action = invalidInputAction}};
 
 static button *menus[] = {
     [MAIN_MENU] = mainMenuButtons,
@@ -310,7 +327,8 @@ static button *menus[] = {
     [NAVIGATION_MENU] = navigationMenuButtons,
     [SEARCH_MENU] = searchMenuButtons,
     [SEARCH_INSERT_SUBMENU] = searchInsertSubmenuButtons,
-    [SEARCH_DELETE_SUBMENU] = searchDeleteSubmenuButtons};
+    [SEARCH_DELETE_SUBMENU] = searchDeleteSubmenuButtons,
+    [MASS_INSERTION_MENU] = massInsertionMenuButtons};
 
 //======================================================================================================
 
@@ -565,6 +583,83 @@ static void beforeKeyInsAction(state *Stateadd)
     if (reportOpError(status, *Stateadd))
     {
         return;
+    }
+}
+//-------helper for massInsAction------
+static opStatus askHowMany(state *Stateadd, int *howManyaddress)
+{
+    if (getInput("How many nodes to insert:", howManyaddress) != OP_SUCCESS)
+    {
+        return OP_ERROR;
+    }
+    if (*howManyaddress <= 0 || *howManyaddress > INT_MAX - Stateadd->list->length)
+    {
+        reportOpError(OP_ERROR_INVALID_INPUT, *Stateadd);
+        return OP_ERROR;
+    }
+    return OP_SUCCESS;
+}
+static void massHeadInsAction(state *Stateadd)
+{
+    int data, howmany = 0;
+    if (askHowMany(Stateadd, &howmany) != OP_SUCCESS || getInput("Enter data:", &data) != OP_SUCCESS)
+    {
+        return;
+    }
+    for (int i = 0; i < howmany; i++)
+    {
+        opStatus status = dinsertIntAtHead(Stateadd->list, data);
+        if (reportOpError(status, *Stateadd))
+        {
+            break;
+        }
+        ++Stateadd->nodesInserted;
+    }
+    if (Stateadd->nodesInserted > 0)
+    {
+        Stateadd->insertedWhere = Stateadd->list->preHead.next;
+    }
+}
+static void massTailInsAction(state *Stateadd)
+{
+    int data, howmany = 0;
+    if (askHowMany(Stateadd, &howmany) != OP_SUCCESS || getInput("Enter data:", &data) != OP_SUCCESS)
+    {
+        return;
+    }
+    for (int i = 0; i < howmany; i++)
+    {
+        opStatus status = appendIntDList(Stateadd->list, data);
+        if (reportOpError(status, *Stateadd))
+        {
+            break;
+        }
+        ++Stateadd->nodesInserted;
+        if (Stateadd->nodesInserted == 1)
+        {
+            Stateadd->insertedWhere = Stateadd->list->postTail.prev;
+        }
+    }
+}
+static void massPosInsAction(state *Stateadd)
+{
+    int data, pos, howmany = 0;
+    if (askHowMany(Stateadd, &howmany) != OP_SUCCESS || getInput("Enter data:", &data) != OP_SUCCESS || getInput("Enter the position:", &pos) != OP_SUCCESS)
+    {
+        return;
+    }
+    for (int i = 0; i < howmany; i++)
+    {
+        opStatus status = dinsertIntAtPos(Stateadd->list, data, pos);
+        if (reportOpError(status, *Stateadd))
+        {
+            break;
+        }
+        ++Stateadd->nodesInserted;
+    }
+    if (Stateadd->nodesInserted > 0)
+    {
+        dgetByPos(Stateadd->list, pos, &(Stateadd->insertedWhere));
     }
 }
 static void headDelAction(state *Stateadd)
@@ -922,9 +1017,9 @@ void run()
     // === initState ===
     State.list = NULL;
     State.HNList = NULL;
-    State.cursoredNode = NULL;
+    State.insertedWhere = State.cursoredNode = NULL;
     State.currentMenu = MAIN_MENU;
-    State.skipchar = 0;
+    State.nodesInserted = State.skipchar = 0;
     State.terminalWidth = initTerminal();
     State.quit = false;
     // =================
