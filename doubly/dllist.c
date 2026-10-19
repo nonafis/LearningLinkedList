@@ -111,6 +111,18 @@ opStatus appendIntDList(linkedList *list, int d)
     return OP_SUCCESS;
 }
 
+opStatus dinsertNAAtTail(linkedList *list, LNode *d)
+{
+    NADNode *newNADNode;
+    opStatus s = createNADNode(d, &newNADNode);
+    if (s != OP_SUCCESS)
+    {
+        return s;
+    }
+    insertDNode(list, list->postTail.prev, &(newNADNode->link));
+    return OP_SUCCESS;
+}
+
 opStatus dinsertIntAtHead(linkedList *list, int d)
 {
     intDNode *newNode;
@@ -238,6 +250,104 @@ opStatus ddeleteAllIntKey(linkedList *list, int key)
         s = dgetByIntKeyFrom(list, key, cur->next, &cur); // this can only work(continue from after matching node) coz the matching node has not been deleted yet //, although there could have been another that will not need two LNode ptrs that is setting the cur to cur->prev before deleting then delete the cur->next and then continue from cur->next.
         deleteDNode(list, deadNode);
     }
+    return OP_SUCCESS;
+}
+
+opStatus sortIntDList(linkedList *list)
+{
+    LNode *current = list->preHead.next;
+    if (current == &(list->postTail))
+    {
+        return OP_ERROR_EMPTY_LIST;
+    }
+    else if (current->next == &(list->postTail))
+    {
+        return OP_SUCCESS;
+    }
+    linkedList *subList;
+    opStatus s = createList(&subList);
+    if (s != OP_SUCCESS)
+    {
+        return s;
+    }
+    while (current != &(list->postTail))
+    {
+        if (current->next == &(list->postTail))
+        {
+            if ((s = dinsertNAAtTail(subList, current)) != OP_SUCCESS)
+            {
+                freeList(&subList);
+                return s;
+            }
+            break;
+        }
+        if (((intDNode *)current)->intData > ((intDNode *)current->next)->intData)
+        {
+            LNode *next = current->next;
+            current->next = next->next;
+            next->next->prev = current;
+            current->prev->next = next;
+            next->prev = current->prev;
+            current->prev = next;
+            next->next = current;
+            if ((s = dinsertNAAtTail(subList, next)) != OP_SUCCESS)
+            {
+                freeList(&subList);
+                return s;
+            }
+            current = current->next;
+        }
+        else
+        {
+            if ((s = dinsertNAAtTail(subList, current)) != OP_SUCCESS)
+            {
+                freeList(&subList);
+                return s;
+            }
+            current = current->next->next;
+        }
+    }
+    while (subList->length != 1)
+    {
+        current = subList->preHead.next;
+        while (current != &(subList->postTail))
+        {
+            LNode *first, *second, *slimit;
+            if (current->next == &(subList->postTail))
+            {
+                break;
+            }
+            first = ((NADNode *)current)->nodeAddressData;
+            second = ((NADNode *)current->next)->nodeAddressData;
+            slimit = current->next->next == &(subList->postTail) ? &(list->postTail) : ((NADNode *)current->next->next)->nodeAddressData;
+            while (first != second && second != slimit)
+            {
+                if (((intDNode *)first)->intData > ((intDNode *)second)->intData)
+                {
+                    LNode *oldSecondPrev = second->prev;
+                    second = second->next;
+                    second->prev->prev = first->prev;
+                    first->prev->next = second->prev;
+                    first->prev = second->prev;
+                    second->prev->next = first;
+                    oldSecondPrev->next = second;
+                    second->prev = oldSecondPrev;
+                    if (first == ((NADNode *)current)->nodeAddressData)
+                    {
+                        ((NADNode *)current)->nodeAddressData = first->prev;
+                    }
+                }
+                else
+                {
+                    first = first->next;
+                }
+            }
+
+            deleteDNode(subList, current->next);
+            current = current->next;
+        }
+    }
+    freeList(&subList);
     return OP_SUCCESS;
 }
 
