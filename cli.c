@@ -98,6 +98,7 @@ static void massHeadInsAction(state *Stateadd);
 static void massTailInsAction(state *Stateadd);
 static void massPosInsAction(state *Stateadd);
 static void reverseListAction(state *Stateadd);
+static void sortListAction(state *Stateadd);
 
 static bool notOnLeftEdgeCondition(state State);
 static bool notOnRightEdgeCondition(state State);
@@ -259,6 +260,7 @@ static button isListMenuButtons[] = {
     {.character = "s", .label = "search menu", .action = buildHNListAction, .nextMenu = SEARCH_MENU},
     {.character = "m", .label = "mass insertion menu", .nextMenu = MASS_INSERTION_MENU},
     {.character = "r", .label = "reverse the list", .action = reverseListAction, .buttonConditon = isNotSingleNodeList},
+    {.character = "o", .label = "sort the list", .action = sortListAction, .buttonConditon = isNotSingleNodeList},
     {.character = "f", .label = "delete list", .action = deleteListAction},
     {.character = "q", .label = "quit program", .action = quitAction},
     {.character = NULL, .action = invalidInputAction}};
@@ -917,6 +919,10 @@ static inline void searchDelAfterAction(state *Stateadd)
 static void reverseListAction(state *Stateadd)
 {
     reportOpError(reverseList(Stateadd->list), *Stateadd);
+}
+static void sortListAction(state *Stateadd)
+{
+    reportOpError(sortIntDList(Stateadd->list), *Stateadd);
 }
 //--------------------------------------------------------
 

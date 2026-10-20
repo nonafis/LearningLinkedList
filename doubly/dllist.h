@@ -35,6 +35,9 @@ opStatus createNADNode(LNode *d, NADNode **newNADNodeadd);
 void initList(linkedList *list);
 opStatus createList(linkedList **listadd);
 
+void moveBefore(LNode *nodeToMove, LNode *target);
+void moveAfter(LNode *nodeToMove, LNode *target);
+
 opStatus dgetByPos(linkedList *list, int pos, LNode **posNodeadd);
 opStatus dgetByIntKeyFrom(linkedList *list, int key, LNode *start, LNode **keyNodeadd);
 static inline opStatus dgetByIntKey(linkedList *list, int key, LNode **keyNodeadd)

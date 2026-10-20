@@ -47,6 +47,53 @@ void initList(linkedList *list)
     list->length = 0;
 }
 
+static void unlinkDNode(LNode *nodeToUnlink)
+{
+    if (nodeToUnlink->prev != NULL)
+    {
+        nodeToUnlink->prev->next = nodeToUnlink->next;
+    }
+    if (nodeToUnlink->next != NULL)
+    {
+        nodeToUnlink->next->prev = nodeToUnlink->prev;
+    }
+    nodeToUnlink->prev = nodeToUnlink->next = NULL;
+}
+
+static void linkBeforeDNode(LNode *nodeToInject, LNode *injectBefore) //link a disconnected node before any node
+{
+    if (injectBefore->prev != NULL)
+    {
+        injectBefore->prev->next = nodeToInject;
+    }
+    nodeToInject->prev = injectBefore->prev;
+    injectBefore->prev = nodeToInject;
+    nodeToInject->next = injectBefore;
+}
+
+static void linkAfterDNode(LNode *nodeToInject, LNode *injectAfter) //link a disconnected node after any node
+{
+    if (injectAfter->next != NULL)
+    {
+        injectAfter->next->prev = nodeToInject;
+    }
+    nodeToInject->next = injectAfter->next;
+    injectAfter->next = nodeToInject;
+    nodeToInject->prev = injectAfter;
+}
+
+void moveBefore(LNode *nodeToMove, LNode *target)
+{
+    unlinkDNode(nodeToMove);
+    linkBeforeDNode(nodeToMove, target);
+}
+
+void moveAfter(LNode *nodeToMove, LNode *target)
+{
+    unlinkDNode(nodeToMove);
+    linkAfterDNode(nodeToMove, target);
+}
+
 opStatus dgetByPos(linkedList *list, int pos, LNode **posNodeadd)
 {
     *posNodeadd = NULL;
@@ -255,99 +302,52 @@ opStatus ddeleteAllIntKey(linkedList *list, int key)
 
 opStatus sortIntDList(linkedList *list)
 {
-    LNode *current = list->preHead.next;
-    if (current == &(list->postTail))
+    if (!list)
     {
-        return OP_ERROR_EMPTY_LIST;
+        return OP_ERROR_INVALID_ARG;
     }
-    else if (current->next == &(list->postTail))
+    LNode *head = list->preHead.next;
+    if (head == &(list->postTail) || head->next == &(list->postTail))
     {
         return OP_SUCCESS;
     }
-    linkedList *subList;
-    opStatus s = createList(&subList);
-    if (s != OP_SUCCESS)
+    int runWidth = 1;
+    while (runWidth < list->length)
     {
-        return s;
-    }
-    while (current != &(list->postTail))
-    {
-        if (current->next == &(list->postTail))
+        LNode *first, *second, *slimit;
+        first = list->preHead.next;
+        while (first != &(list->postTail))
         {
-            if ((s = dinsertNAAtTail(subList, current)) != OP_SUCCESS)
+            second = first;
+            for (int i = 0; second != &(list->postTail) && i < runWidth; i++)
             {
-                freeList(&subList);
-                return s;
+                second = second->next;
             }
-            break;
-        }
-        if (((intDNode *)current)->intData > ((intDNode *)current->next)->intData)
-        {
-            LNode *next = current->next;
-            current->next = next->next;
-            next->next->prev = current;
-            current->prev->next = next;
-            next->prev = current->prev;
-            current->prev = next;
-            next->next = current;
-            if ((s = dinsertNAAtTail(subList, next)) != OP_SUCCESS)
-            {
-                freeList(&subList);
-                return s;
-            }
-            current = current->next;
-        }
-        else
-        {
-            if ((s = dinsertNAAtTail(subList, current)) != OP_SUCCESS)
-            {
-                freeList(&subList);
-                return s;
-            }
-            current = current->next->next;
-        }
-    }
-    while (subList->length != 1)
-    {
-        current = subList->preHead.next;
-        while (current != &(subList->postTail))
-        {
-            LNode *first, *second, *slimit;
-            if (current->next == &(subList->postTail))
+            if (second == &(list->postTail))
             {
                 break;
             }
-            first = ((NADNode *)current)->nodeAddressData;
-            second = ((NADNode *)current->next)->nodeAddressData;
-            slimit = current->next->next == &(subList->postTail) ? &(list->postTail) : ((NADNode *)current->next->next)->nodeAddressData;
+            slimit = second;
+            for (int i = 0; slimit != &(list->postTail) && i < runWidth; i++)
+            {
+                slimit = slimit->next;
+            }
             while (first != second && second != slimit)
             {
                 if (((intDNode *)first)->intData > ((intDNode *)second)->intData)
                 {
-                    LNode *oldSecondPrev = second->prev;
                     second = second->next;
-                    second->prev->prev = first->prev;
-                    first->prev->next = second->prev;
-                    first->prev = second->prev;
-                    second->prev->next = first;
-                    oldSecondPrev->next = second;
-                    second->prev = oldSecondPrev;
-                    if (first == ((NADNode *)current)->nodeAddressData)
-                    {
-                        ((NADNode *)current)->nodeAddressData = first->prev;
-                    }
+                    moveBefore(second->prev, first);
                 }
                 else
                 {
                     first = first->next;
                 }
             }
-
-            deleteDNode(subList, current->next);
-            current = current->next;
+            first = slimit;
         }
+        runWidth *= 2;
     }
-    freeList(&subList);
     return OP_SUCCESS;
 }
 
@@ -359,11 +359,7 @@ opStatus reverseList(linkedList *list)
     }
     LNode *current, *oldHead;
     oldHead = current = list->preHead.next;
-    if (oldHead == &(list->postTail))
-    {
-        return OP_ERROR_EMPTY_LIST;
-    }
-    else if (oldHead->next == &(list->postTail))
+    if (oldHead == &(list->postTail) || oldHead->next == &(list->postTail))
     {
         return OP_SUCCESS;
     }
