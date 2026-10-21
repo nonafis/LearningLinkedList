@@ -234,3 +234,27 @@ Positions are zero-based. Check each returned `opStatus` for success or an error
 - **Links embedded in the node.** Every node type (`intDNode`, `NADNode`) starts with an `LNode`, so a pointer to the node and an `LNode *` point at the same address, and the link-manipulating code (`insertDNode`, `deleteDNode`) works on plain `LNode`s without knowing about the payload. This is what lets one list type hold either integers or search-result addresses.
 - **Terminal input in raw mode.** `rawMode.c` switches the terminal out of line-buffered mode to read single keys with `readB`, which writes the key into a short string. Arrow-key escape sequences are translated into the UTF-8 strings `LEFT_ARROW_CHAR` and `RIGHT_ARROW_CHAR` from `convention.h`. On POSIX, a lone `ESC` is told apart from the start of an escape sequence by waiting 50 ms (`msTimeoutC`) for more bytes. The Windows and POSIX versions live side by side behind `#ifdef _WIN32`.
 - **Terminal setup and cleanup.** `terminalconfig.c` enables UTF-8 output on Windows, detects the terminal width, enters the alternate screen, and restores the screen and cursor when the program exits.
+
+## Wishlist
+- [ ] Automated testing
+- [ ] Cursor semantics and translation helper
+- [ ] Centralized post-operation cleanup improvements
+- [ ] Transaction-like operation design
+- [ ] Linked-list integrity checker
+- [ ] Terminal resizing support
+- [ ] Animated timeout feedback for invalid input and other timed messages
+- [ ] Multiple-list support, with a list selection menu 
+- [ ] properties (`p`) option for lists
+- [ ] saving a list to open another
+- [ ] Undo support for more operations
+- [ ] Redo support
+- [ ] Rotate the list left
+- [ ] Rotate the list right
+- [ ] Split the list
+- [ ] Merge lists
+- [ ] Move nodes to another position
+- [ ] Edit node in place
+- [ ] Sorted inserted
+- [ ] Clear and refill
+- [ ] Remove duplicates
+- [ ] holding prefix of command to stay longer in a submenu
